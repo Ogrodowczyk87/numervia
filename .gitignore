@@ -1,0 +1,40 @@
+# macOS / edytory
+.DS_Store
+.idea/
+.vscode/
+
+# Sekrety i lokalna konfiguracja
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.aws/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# Node / build / testy
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+
+# AWS CDK
+cdk.out/
+
+# Lokalny plan i zasady współpracy
+/PROJECT_PLAN.md
+/AGENTS.md

@@ -1,17 +1,30 @@
 # Numervia
 
-**Numervia** is an open-source financial simulation platform designed to help users explore financial scenarios, analyse data, and make informed financial decisions.
+Numervia to rozwijana aplikacja webowa do porównywania scenariuszy finansowych i lepszego rozumienia wpływu decyzji na własne finanse.
 
-The project combines modern web technologies with cloud computing to deliver interactive financial tools.
+Pierwsza wersja będzie umożliwiać porównanie spłaty kredytu hipotecznego z regularnymi nadpłatami i bez nich — z harmonogramem, kosztami odsetek i wykresem salda.
 
-### Tech Stack
-- **Frontend:** React, TypeScript
-- **Backend:** Python, FastAPI
-- **Cloud:** AWS
-- **Infrastructure:** AWS CDK
+Planowane technologie: Python, FastAPI, React i TypeScript.
 
-### Project Status
-🚧 Under active development.
+Projekt jest na wczesnym etapie rozwoju. Obecny frontend wyświetla nazwę Numervia.
 
-### License
-MIT
+## Uruchomienie frontendu
+
+Wymagany Node.js 24 i npm. Z głównego folderu projektu:
+
+```sh
+cd frontend
+npm ci
+npm run dev
+```
+
+Otwórz adres podany przez Vite w terminalu (zwykle http://localhost:5173).
+Zatrzymaj serwer skrótem Ctrl+C.
+
+Sprawdzenie typów i przygotowanie wersji produkcyjnej:
+
+```sh
+npm run build
+```
+
+Narzędzie ma charakter edukacyjny i nie stanowi porady finansowej.

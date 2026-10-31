@@ -1,10 +1,10 @@
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  color: #182235;
-  background: #fafbfc;
-}
+@import "tailwindcss";
 
-main {
-  padding: 2rem;
+@layer base {
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    color: #182235;
+    background: #fafbfc;
+  }
 }

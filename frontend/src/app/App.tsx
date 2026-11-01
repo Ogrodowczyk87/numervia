@@ -1,10 +1,19 @@
-import MortgageCalculator from "../features/mortgage/MortgageCalculator";
+import Navbar from "../components/Navbar";
+import HomePage from "../pages/HomePage";
 
 export default function App() {
   return (
-    <main className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="mb-6 text-3xl font-bold">Numervia</h1>
-      <MortgageCalculator />
-    </main>
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-white focus:p-4"
+      >
+        Skip to content
+      </a>
+      <Navbar />
+      <main id="main-content" tabIndex={-1}>
+        <HomePage />
+      </main>
+    </>
   );
 }

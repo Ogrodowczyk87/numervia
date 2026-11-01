@@ -6,6 +6,8 @@ import type {
   MortgageSimulationRequest,
   MortgageSimulationResponse,
 } from "./types";
+import MortgageChart from "./MortgageChart";
+import MortgageSchedule from "./MortgageSchedule";
 
 export default function MortgageCalculator() {
   const [result, setResult] = useState<MortgageSimulationResponse | null>(null);
@@ -41,7 +43,7 @@ export default function MortgageCalculator() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <MortgageForm onCalculate={handleCalculate} isLoading={isLoading} />
       <p role="status" className="text-sm text-slate-600">
         {isLoading ? "Calculating…" : ""}
@@ -51,7 +53,13 @@ export default function MortgageCalculator() {
           {error}
         </p>
       )}
-      {result && <MortgageSummary result={result} />}
+      {result && (
+        <>
+          <MortgageSummary result={result} />
+          <MortgageChart result={result} />
+          <MortgageSchedule result={result} />
+        </>
+      )}
     </div>
   );
 }

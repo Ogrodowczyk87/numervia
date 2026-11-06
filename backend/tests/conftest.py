@@ -41,3 +41,15 @@ def provider_response():
         )
 
     return create
+
+
+@pytest.fixture
+def video_provider(monkeypatch, tmp_path):
+    from app.videos import VideoCache
+
+    monkeypatch.setattr("app.videos.cache", VideoCache())
+    monkeypatch.setattr("app.videos.ENV_PATH", tmp_path / "missing.env")
+    monkeypatch.setenv("YOUTUBE_API_KEY", "test-youtube-key")
+    mock = AsyncMock()
+    monkeypatch.setattr("app.videos.httpx.AsyncClient.get", mock)
+    return mock

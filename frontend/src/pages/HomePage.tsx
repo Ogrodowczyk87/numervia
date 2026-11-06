@@ -1,3 +1,4 @@
+import FinancialVideos from "../features/videos/FinancialVideos";
 import FinancialNews from "../features/news/FinancialNews";
 import PlannedModules from "../components/PlannedModules";
 
@@ -5,6 +6,7 @@ export default function HomePage() {
   return (
     <>
       <FinancialNews />
+      <FinancialVideos />
       <section id="home" className="mx-auto max-w-5xl scroll-mt-6 px-4 py-16 sm:py-24">
         <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-blue-700">
           Explore your financial scenarios

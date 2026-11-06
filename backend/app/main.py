@@ -3,9 +3,11 @@ from fastapi import FastAPI
 from app.finance.mortgage import simulate_mortgage
 from app.models import MortgageSimulationRequest, MortgageSimulationResponse
 from app.news import router as news_router
+from app.videos import router as videos_router
 
 app = FastAPI(title="Numervia API")
 app.include_router(news_router)
+app.include_router(videos_router)
 
 
 @app.get("/api/v1/health")

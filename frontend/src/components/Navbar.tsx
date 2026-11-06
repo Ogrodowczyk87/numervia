@@ -1,12 +1,14 @@
 import { useRef, useState } from "react";
 
 const links = [
-  { href: "#home", label: "Home" },
-  { href: "#mortgage", label: "Mortgage Lab" },
-  { href: "#debt-lab", label: "Debt Lab", planned: true },
-  { href: "#investment-lab", label: "Investment Lab", planned: true },
-  { href: "#decision-lab", label: "Decision Lab", planned: true },
-  { href: "#operations-lab", label: "Finance Operations", planned: true },
+  { href: "/", label: "Home" },
+  { href: "/mortgage-calculator", label: "Mortgage Calculator" },
+  { href: "/market-data", label: "Market Data" },
+  { href: "/tech", label: "Tech" },
+  { href: "/#debt-lab", label: "Debt Lab", planned: true },
+  { href: "/#investment-lab", label: "Investment Lab", planned: true },
+  { href: "/#decision-lab", label: "Decision Lab", planned: true },
+  { href: "/#operations-lab", label: "Finance Operations", planned: true },
 ];
 
 export default function Navbar() {
@@ -25,7 +27,7 @@ export default function Navbar() {
           }
         }}
       >
-        <a href="#home" onClick={() => setIsOpen(false)} className="text-xl font-bold tracking-tight">
+        <a href="/" onClick={() => setIsOpen(false)} className="text-xl font-bold tracking-tight">
           Numervia
         </a>
         <button
@@ -49,6 +51,7 @@ export default function Navbar() {
             <li key={link.href}>
               <a
                 href={link.href}
+                aria-current={window.location.pathname === link.href ? "page" : undefined}
                 onClick={() => setIsOpen(false)}
                 className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-50 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700"
               >

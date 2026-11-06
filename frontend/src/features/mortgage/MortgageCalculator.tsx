@@ -25,7 +25,10 @@ export default function MortgageCalculator() {
     try {
       setResult(await simulateMortgage(request));
     } catch (cause) {
-      if (cause instanceof Error && cause.name === "TimeoutError") {
+      if (
+        typeof cause === "object" && cause !== null &&
+        "name" in cause && cause.name === "TimeoutError"
+      ) {
         setError("The calculation timed out. Please try again.");
       } else {
         setError(

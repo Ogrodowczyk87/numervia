@@ -7,10 +7,12 @@ dependencies = [
   "pydantic",
   "uvicorn",
   "mangum",
+  "httpx",
+  "python-dotenv",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "ruff", "httpx"]
+dev = ["pytest", "ruff"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

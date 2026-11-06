@@ -1,7 +1,21 @@
+import { lazy, Suspense } from "react";
 import Navbar from "../components/Navbar";
 import HomePage from "../pages/HomePage";
 
+const MortgageCalculatorPage = lazy(() => import("../pages/MortgageCalculatorPage"));
+const MarketDataPage = lazy(() => import("../pages/MarketDataPage"));
+const TechPage = lazy(() => import("../pages/TechPage"));
+
 export default function App() {
+  const pathname = window.location.pathname.replace(/\/$/, "");
+  const Page = pathname === "/mortgage-calculator"
+    ? MortgageCalculatorPage
+    : pathname === "/market-data"
+      ? MarketDataPage
+      : pathname === "/tech"
+        ? TechPage
+        : HomePage;
+
   return (
     <>
       <a
@@ -12,7 +26,9 @@ export default function App() {
       </a>
       <Navbar />
       <main id="main-content" tabIndex={-1}>
-        <HomePage />
+        <Suspense fallback={<p role="status" className="p-8">Loading page…</p>}>
+          <Page />
+        </Suspense>
       </main>
     </>
   );

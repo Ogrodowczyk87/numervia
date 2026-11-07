@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import Navbar from "../components/Navbar";
+import MarketTicker from "../components/MarketTicker";
 import HomePage from "../pages/HomePage";
 
 const MortgageCalculatorPage = lazy(() => import("../pages/MortgageCalculatorPage"));
@@ -25,6 +26,7 @@ export default function App() {
         Skip to content
       </a>
       <Navbar />
+      <MarketTicker />
       <main id="main-content" tabIndex={-1}>
         <Suspense fallback={<p role="status" className="p-8">Loading page…</p>}>
           <Page />

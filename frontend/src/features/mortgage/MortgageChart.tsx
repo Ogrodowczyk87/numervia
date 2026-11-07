@@ -51,7 +51,7 @@ export default function MortgageChart({ result }: MortgageChartProps) {
   return (
     <section
       aria-labelledby="balance-chart-heading"
-      className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6"
+      className="min-w-0 rounded-2xl border border-line bg-surface p-4 sm:p-6"
     >
       <h2
         id="balance-chart-heading"
@@ -60,7 +60,7 @@ export default function MortgageChart({ result }: MortgageChartProps) {
         Mortgage balance over time
       </h2>
 
-      <p className="mt-2 text-sm text-slate-600">
+      <p className="mt-2 text-sm text-muted">
         Compare your remaining balance with and without overpayments.
       </p>
 
@@ -71,9 +71,10 @@ export default function MortgageChart({ result }: MortgageChartProps) {
             margin={{ top: 10, right: 10, bottom: 10, left: 0 }}
             accessibilityLayer
           >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke="var(--color-line)" strokeDasharray="3 3" vertical={false} />
 
             <XAxis
+              tick={{ fill: "var(--color-muted)" }}
               dataKey="month"
               type="number"
               domain={["dataMin", "dataMax"]}
@@ -83,12 +84,15 @@ export default function MortgageChart({ result }: MortgageChartProps) {
 
             <YAxis
               width={65}
+              tick={{ fill: "var(--color-muted)" }}
               tickFormatter={(value: number) =>
                 pounds.format(value)
               }
             />
 
             <Tooltip
+              contentStyle={{ background: "var(--color-surface)", borderColor: "var(--color-line)", borderRadius: 12, color: "var(--color-ink)" }}
+              labelStyle={{ color: "var(--color-ink)" }}
               labelFormatter={(month) => `Month ${month}`}
               formatter={(value) =>
                 pounds.format(Number(value))
@@ -101,7 +105,7 @@ export default function MortgageChart({ result }: MortgageChartProps) {
               type="linear"
               dataKey="baseline"
               name="Without overpayments"
-              stroke="#2563eb"
+              stroke="var(--color-brand)"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
@@ -111,7 +115,7 @@ export default function MortgageChart({ result }: MortgageChartProps) {
               type="linear"
               dataKey="withOverpayment"
               name="With overpayments"
-              stroke="#15803d"
+              stroke="var(--color-accent)"
               strokeWidth={2}
               strokeDasharray="6 4"
               dot={false}
@@ -121,7 +125,7 @@ export default function MortgageChart({ result }: MortgageChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <p className="mt-3 text-sm text-slate-600">
+      <p className="mt-3 text-sm text-muted">
         Without overpayments: {result.baseline.months_to_payoff} months.
         {" "}With overpayments: {result.with_overpayment.months_to_payoff} months.
       </p>

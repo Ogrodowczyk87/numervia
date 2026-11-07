@@ -48,11 +48,11 @@ export default function MortgageCalculator() {
   return (
     <div className="min-w-0 space-y-6">
       <MortgageForm onCalculate={handleCalculate} isLoading={isLoading} />
-      <p role="status" className="text-sm text-slate-600">
+      <p role="status" className="text-sm text-muted">
         {isLoading ? "Calculating…" : ""}
       </p>
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-800">
+        <p role="alert" className="rounded-lg bg-rose-950/60 p-4 text-rose-200">
           {error}
         </p>
       )}

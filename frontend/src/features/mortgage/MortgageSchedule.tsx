@@ -7,7 +7,7 @@ const pounds = new Intl.NumberFormat("en-GB", {
   currency: "GBP",
 });
 const buttonClassName =
-  "min-h-11 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-40";
+  "min-h-11 rounded-lg border border-line px-4 py-2 text-sm font-medium hover:bg-surface-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-40";
 
 export default function MortgageSchedule({
   result,
@@ -24,9 +24,9 @@ export default function MortgageSchedule({
   const scenarioLabel = scenario === "baseline" ? "Without overpayments" : "With overpayments";
 
   return (
-    <section aria-labelledby="schedule-heading" className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+    <section aria-labelledby="schedule-heading" className="min-w-0 rounded-2xl border border-line bg-surface p-4 sm:p-6">
       <h2 id="schedule-heading" className="text-xl font-semibold">Repayment schedule</h2>
-      <p id="schedule-description" className="mt-2 text-sm text-slate-600">
+      <p id="schedule-description" className="mt-2 text-sm text-muted">
         Principal repaid is the capital portion of your regular payment. Overpayments are shown separately. All amounts are in GBP.
       </p>
 
@@ -40,30 +40,30 @@ export default function MortgageSchedule({
             type="button"
             aria-pressed={scenario === value}
             onClick={() => { setScenario(value); setPage(0); }}
-            className={`${buttonClassName} ${scenario === value ? "border-blue-700 bg-blue-50 text-blue-800" : "text-slate-600"}`}
+            className={`${buttonClassName} ${scenario === value ? "border-brand bg-brand/10 text-brand" : "text-muted"}`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      <p className="mt-4 text-xs text-slate-500 sm:hidden">Swipe the table horizontally to see all columns.</p>
+      <p className="mt-4 text-xs text-soft sm:hidden">Swipe the table horizontally to see all columns.</p>
       <div
-        className="mt-3 max-w-full overflow-x-auto rounded-lg border border-slate-200 focus-visible:outline-2 focus-visible:outline-blue-700"
+        className="mt-3 max-w-full overflow-x-auto rounded-lg border border-line focus-visible:outline-2 focus-visible:outline-brand"
         role="region"
         aria-label="Monthly repayment details"
         tabIndex={0}
       >
         <table aria-describedby="schedule-description" className="w-full min-w-[680px] text-right text-sm tabular-nums">
           <caption className="sr-only">{scenarioLabel} — page {currentPage + 1} of {pageCount}</caption>
-          <thead className="bg-slate-50 text-slate-600">
+          <thead className="bg-surface-raised text-muted">
             <tr>
               {["Month", "Regular payment", "Interest", "Principal repaid", "Overpayment", "Balance"].map((label) => (
                 <th key={label} scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">{label}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-line">
             {entries.map((entry) => (
               <tr key={entry.month}>
                 <th scope="row" className="px-4 py-3 font-medium">{entry.month}</th>
@@ -75,11 +75,11 @@ export default function MortgageSchedule({
           </tbody>
         </table>
       </div>
-      {entries.length === 0 && <p className="mt-4 text-sm text-slate-600">No repayment entries available.</p>}
+      {entries.length === 0 && <p className="mt-4 text-sm text-muted">No repayment entries available.</p>}
 
       <nav aria-label="Schedule pagination" className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <button type="button" className={buttonClassName} disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</button>
-        <p role="status" className="text-sm text-slate-600">
+        <p role="status" className="text-sm text-muted">
           Page {currentPage + 1} of {pageCount}
           {entries.length > 0 && <span className="block text-xs">Months {entries[0].month}–{entries[entries.length - 1].month}</span>}
         </p>

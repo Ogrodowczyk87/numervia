@@ -23,17 +23,17 @@ export default function MortgageSummary({
   ];
 
   return (
-    <section aria-labelledby="mortgage-results" className="rounded-2xl border border-slate-200 bg-white p-6">
+    <section aria-labelledby="mortgage-results" className="rounded-2xl border border-line bg-surface p-6">
       <h2 id="mortgage-results" className="mb-4 text-xl font-semibold">Results</h2>
       <dl className="space-y-4">
         {statistics.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-sm text-slate-600">{label}</dt>
+            <dt className="text-sm text-muted">{label}</dt>
             <dd className="text-lg font-semibold">{value}</dd>
           </div>
         ))}
       </dl>
-      <p className="mt-6 text-sm text-slate-600">
+      <p className="mt-6 text-sm text-muted">
         Educational model: fixed interest rate for the full term, with no fees or early repayment charges.
       </p>
     </section>

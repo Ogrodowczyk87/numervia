@@ -8,8 +8,8 @@ type MortgageFormProps = {
 };
 
 const inputClassName =
-  "mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 " +
-  "focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200";
+  "mt-2 w-full rounded-lg border border-line px-3 py-2 " +
+  "focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20";
 
 export default function MortgageForm({
   onCalculate,
@@ -35,7 +35,7 @@ export default function MortgageForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6"
+      className="space-y-5 rounded-2xl border border-line bg-surface p-6"
     >
       <h2 className="text-xl font-semibold">Mortgage calculator</h2>
 
@@ -114,9 +114,9 @@ export default function MortgageForm({
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold
-                   text-white disabled:cursor-wait disabled:opacity-60 hover:bg-blue-800 focus-visible:outline-2
-                   focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+        className="w-full rounded-lg bg-brand px-4 py-3 font-semibold
+                   text-canvas disabled:cursor-wait disabled:opacity-60 hover:bg-brand-hover focus-visible:outline-2
+                   focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         {isLoading ? "Calculating…" : "Calculate"}
       </button>

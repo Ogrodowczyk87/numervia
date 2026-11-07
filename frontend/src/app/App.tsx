@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import MarketTicker from "../components/MarketTicker";
 import HomePage from "../pages/HomePage";
@@ -21,7 +22,7 @@ export default function App() {
     <>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-white focus:p-4"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-surface focus:p-4"
       >
         Skip to content
       </a>
@@ -32,6 +33,7 @@ export default function App() {
           <Page />
         </Suspense>
       </main>
+      <Footer />
     </>
   );
 }

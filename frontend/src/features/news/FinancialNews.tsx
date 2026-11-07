@@ -37,12 +37,12 @@ export default function FinancialNews() {
   return (
     <section aria-labelledby="news-heading" className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
       <h2 id="news-heading" className="text-2xl font-bold">Financial news</h2>
-      <div role="status" className="mt-4 text-sm text-slate-600">
+      <div role="status" className="mt-4 text-sm text-muted">
         {isLoading ? "Loading financial news…" : error || (articles.length === 0 ? "No headlines available right now." : "")}
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
-          <article key={article.url} className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-6">
+          <article key={article.url} className="flex min-w-0 flex-col rounded-xl border border-line bg-surface p-6">
             {article.image_url && (
               <img
                 src={article.image_url}
@@ -55,15 +55,15 @@ export default function FinancialNews() {
                 onError={(event) => { event.currentTarget.hidden = true; }}
               />
             )}
-            <p className="break-words text-xs font-medium text-slate-500">
+            <p className="break-words text-xs font-medium text-soft">
               {article.source} · {publicationDate(article.published_at)}
             </p>
             <h3 className="mt-3 break-words text-lg font-semibold leading-snug">
-              <a href={article.url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">
+              <a href={article.url} target="_blank" rel="noopener noreferrer" className="hover:text-brand focus-visible:outline-2 focus-visible:outline-brand">
                 {article.title}<span className="sr-only"> (opens in a new tab)</span>
               </a>
             </h3>
-            <p className="mt-4 text-sm text-blue-700">Read at source ↗</p>
+            <p className="mt-4 text-sm text-brand">Read at source ↗</p>
           </article>
         ))}
       </div>

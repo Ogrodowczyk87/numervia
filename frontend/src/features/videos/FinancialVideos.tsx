@@ -36,18 +36,18 @@ export default function FinancialVideos() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 id="videos-heading" className="text-2xl font-bold">Videos</h2>
-          <p className="mt-2 text-sm text-slate-600">Finance, economy and technology · From YouTube</p>
+          <p className="mt-2 text-sm text-muted">Finance, economy and technology · From YouTube</p>
         </div>
         {!!feed?.videos.length && <div className="flex gap-2">
-          <button type="button" aria-label="Previous videos" onClick={() => scroll(-1)} className="min-h-11 min-w-11 rounded-full border border-slate-300 hover:bg-slate-100">←</button>
-          <button type="button" aria-label="Next videos" onClick={() => scroll(1)} className="min-h-11 min-w-11 rounded-full border border-slate-300 hover:bg-slate-100">→</button>
+          <button type="button" aria-label="Previous videos" onClick={() => scroll(-1)} className="min-h-11 min-w-11 rounded-full border border-line hover:bg-surface-raised">←</button>
+          <button type="button" aria-label="Next videos" onClick={() => scroll(1)} className="min-h-11 min-w-11 rounded-full border border-line hover:bg-surface-raised">→</button>
         </div>}
       </div>
-      <p role="status" className="mt-4 text-sm text-slate-600">
+      <p role="status" className="mt-4 text-sm text-muted">
         {loading ? "Loading videos…" : error || (feed?.videos.length === 0 ? "No videos available right now." : "")}
         {feed?.stale && " Showing previously fetched videos while updates are unavailable."}
       </p>
-      <div ref={strip} role="region" aria-label="Video selection" tabIndex={0} className="mt-5 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 focus-visible:outline-2 focus-visible:outline-blue-700">
+      <div ref={strip} role="region" aria-label="Video selection" tabIndex={0} className="mt-5 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 focus-visible:outline-2 focus-visible:outline-brand">
         {feed?.videos.map((video) => <VideoCard key={video.video_id} video={video} active={activeId === video.video_id} onPlay={() => setActiveId(video.video_id)} />)}
       </div>
     </section>

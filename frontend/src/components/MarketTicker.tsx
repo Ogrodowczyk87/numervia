@@ -1,30 +1,17 @@
-import { createElement, useState } from "react";
+import { createElement } from "react";
 import { useTheme } from "../theme/ThemeProvider";
 
-const markets = {
-  Overview: "FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,FX:EURUSD,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD,CMCMARKETS:GOLD",
-  "US Markets": "FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI",
-  Cryptocurrencies: "BITSTAMP:BTCUSD,BITSTAMP:ETHUSD",
-  Currencies: "FX:GBPUSD,FX:GBPEUR,FX:EURUSD,FX:USDJPY",
-  Commodities: "CMCMARKETS:GOLD",
-};
+const overviewSymbols = "FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,FX:EURUSD,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD,CMCMARKETS:GOLD";
 
 export default function MarketTicker() {
   const { theme } = useTheme();
-  const [market, setMarket] = useState<keyof typeof markets>("Overview");
   return (
     <section aria-label="Market overview" className="border-b border-line bg-surface">
-      <div className="flex w-full flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:px-6">
-        <div className="shrink-0">
-          <label htmlFor="market-selection" className="sr-only">Select market</label>
-          <select id="market-selection" value={market} onChange={(event) => setMarket(event.target.value as keyof typeof markets)} className="min-h-11 max-w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-brand">
-            {Object.keys(markets).map((name) => <option key={name}>{name}</option>)}
-          </select>
-        </div>
-        <div className="min-w-0 flex-1 overflow-hidden" aria-label={`${market} quotes`}>
+      <div className="w-full px-4 py-3 sm:px-6">
+        <div className="min-w-0 overflow-hidden" aria-label="Overview quotes">
           {createElement("tv-ticker-tape", {
-            key: `${market}-${theme}`,
-            symbols: markets[market],
+            key: theme,
+            symbols: overviewSymbols,
             theme,
             style: { display: "block", width: "100%", minHeight: "80px" },
           })}

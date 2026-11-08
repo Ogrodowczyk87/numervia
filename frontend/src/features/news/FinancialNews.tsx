@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import NewsCard from "./NewsCard";
+import AdPlaceholder from "../../components/AdPlaceholder";
 import HousingNews from "./HousingNews";
 import { getFinancialNews } from "./newsApi";
 import type { NewsArticle } from "./newsApi";
@@ -48,7 +49,8 @@ export default function FinancialNews({ sidebar }: { sidebar?: ReactNode }) {
   if (!sidebar) return newsSection;
 
   return (
-    <div className="mx-auto grid w-full max-w-[120rem] items-start gap-6 lg:items-stretch px-4 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <div className="mx-auto grid w-full max-w-[120rem] items-start gap-6 lg:items-stretch px-4 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:grid-cols-[16rem_minmax(0,3fr)_minmax(0,2fr)] 2xl:grid-cols-[22rem_minmax(0,3fr)_minmax(0,2fr)]">
+      <AdPlaceholder />
       <div className="min-w-0">{newsSection}</div>
       <div className="@container flex min-w-0 flex-col">
         {sidebar}

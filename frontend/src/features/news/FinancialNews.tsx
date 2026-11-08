@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import NewsCard from "./NewsCard";
+import HousingNews from "./HousingNews";
 import { getFinancialNews } from "./newsApi";
 import type { NewsArticle } from "./newsApi";
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
-
-function publicationDate(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "Date unavailable" : dateFormat.format(date);
-}
-
-export default function FinancialNews() {
+export default function FinancialNews({ sidebar }: { sidebar?: ReactNode }) {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -34,40 +30,30 @@ export default function FinancialNews() {
     return () => controller.abort();
   }, []);
 
-  return (
+  const visibleArticles = articles.slice(0, Math.ceil(articles.length / 2));
+  const newsSection = (
     <section aria-labelledby="news-heading" className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
       <h2 id="news-heading" className="text-2xl font-bold">Financial news</h2>
       <div role="status" className="mt-4 text-sm text-muted">
         {isLoading ? "Loading financial news…" : error || (articles.length === 0 ? "No headlines available right now." : "")}
       </div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {articles.map((article) => (
-          <article key={article.url} className="relative flex min-w-0 flex-col rounded-xl border border-line bg-surface p-6">
-            {article.image_url && (
-              <img
-                src={article.image_url}
-                alt=""
-                width={640}
-                height={360}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                className="mb-4 aspect-video w-full rounded-lg object-cover"
-                onError={(event) => { event.currentTarget.hidden = true; }}
-              />
-            )}
-            <p className="break-words text-xs font-medium text-soft">
-              {article.source} · {publicationDate(article.published_at)}
-              {article.provider && ` · via ${article.provider === "currents" ? "Currents" : "Marketaux"}`}
-            </p>
-            <h3 className="mt-3 break-words text-lg font-semibold leading-snug">
-              <a href={article.url} target="_blank" rel="noopener noreferrer" className="hover:text-brand focus-visible:outline-2 focus-visible:outline-brand">
-                {article.title}<span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            </h3>
-            <p className="mt-4 text-sm text-brand">Read at source ↗</p>
-          </article>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {visibleArticles.map((article) => (
+          <NewsCard key={article.url} article={article} />
         ))}
       </div>
     </section>
+  );
+
+  if (!sidebar) return newsSection;
+
+  return (
+    <div className="mx-auto grid w-full max-w-[120rem] items-start gap-6 lg:items-stretch px-4 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="min-w-0">{newsSection}</div>
+      <div className="@container flex min-w-0 flex-col">
+        {sidebar}
+        <HousingNews excludeUrls={visibleArticles.map((article) => article.url)} />
+      </div>
+    </div>
   );
 }

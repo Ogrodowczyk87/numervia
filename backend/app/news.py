@@ -9,7 +9,14 @@ import httpx
 from dotenv import dotenv_values
 from fastapi import APIRouter, HTTPException
 
-from app.news_providers import NewsArticle, Provider, parse_articles, request_news
+from app.news_providers import (
+    Feed,
+    NewsArticle,
+    Provider,
+    is_housing_headline,
+    parse_articles,
+    request_news,
+)
 
 ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
 router = APIRouter(prefix="/api/v1", tags=["News"])
@@ -22,14 +29,21 @@ PROVIDERS: dict[Provider, tuple[str, int]] = {
 }
 
 
-class ProviderCache:
+class FeedCache:
     def __init__(self):
         self.articles: list[NewsArticle] | None = None
         self.expires_at = 0.0
         self.retry_at = 0.0
         self.error_status = 502
-        self.attempts: deque[float] = deque()
         self.lock = asyncio.Lock()
+
+
+class ProviderCache(FeedCache):
+    def __init__(self):
+        super().__init__()
+        self.attempts: deque[float] = deque()
+        self.quota_retry_at = 0.0
+        self.housing = FeedCache()
 
 
 class NewsCache:
@@ -40,7 +54,7 @@ class NewsCache:
 cache = NewsCache()
 
 
-def provider_error(state: ProviderCache) -> HTTPException:
+def provider_error(state: FeedCache) -> HTTPException:
     return HTTPException(
         status_code=state.error_status,
         detail=LIMIT_MESSAGE
@@ -52,25 +66,35 @@ def provider_error(state: ProviderCache) -> HTTPException:
     )
 
 
-async def get_provider_news(provider: Provider, token: str) -> list[NewsArticle]:
-    state = cache.providers[provider]
+async def get_provider_news(
+    provider: Provider, token: str, feed: Feed = "overview"
+) -> list[NewsArticle]:
+    provider_state = cache.providers[provider]
+    state = provider_state if feed == "overview" else provider_state.housing
     async with state.lock:
         now = time.monotonic()
         if state.articles is not None and now < state.expires_at:
             return state.articles
+        if now < provider_state.quota_retry_at:
+            state.error_status = 429
+            state.retry_at = provider_state.quota_retry_at
+            raise provider_error(state)
         if now < state.retry_at:
             raise provider_error(state)
-        while state.attempts and state.attempts[0] <= now - DAY_SECONDS:
-            state.attempts.popleft()
-        if len(state.attempts) >= PROVIDERS[provider][1]:
+        while (
+            provider_state.attempts and provider_state.attempts[0] <= now - DAY_SECONDS
+        ):
+            provider_state.attempts.popleft()
+        if len(provider_state.attempts) >= PROVIDERS[provider][1]:
             state.error_status = 429
-            state.retry_at = state.attempts[0] + DAY_SECONDS
+            state.retry_at = provider_state.attempts[0] + DAY_SECONDS
+            provider_state.quota_retry_at = state.retry_at
             raise provider_error(state)
         # Reserve before HTTP, including failed requests and timeouts.
-        state.attempts.append(now)
+        provider_state.attempts.append(now)
         try:
             async with asyncio.timeout(12), httpx.AsyncClient(timeout=10) as client:
-                response = await request_news(client, provider, token)
+                response = await request_news(client, provider, token, feed)
             if response.status_code in (402, 429):
                 delay = CACHE_SECONDS
                 try:
@@ -79,9 +103,12 @@ async def get_provider_news(provider: Provider, token: str) -> list[NewsArticle]
                     pass
                 state.error_status = 429
                 state.retry_at = time.monotonic() + delay
+                provider_state.quota_retry_at = state.retry_at
                 raise provider_error(state)
             response.raise_for_status()
             articles = parse_articles(provider, response.json())
+            if feed == "housing":
+                articles = [a for a in articles if is_housing_headline(a.title)]
         except (
             httpx.HTTPError,
             TimeoutError,
@@ -98,11 +125,12 @@ async def get_provider_news(provider: Provider, token: str) -> list[NewsArticle]
 
 
 @router.get("/news", response_model=list[NewsArticle])
-async def get_news():
+async def get_news(feed: Feed = "overview"):
     values = dotenv_values(ENV_PATH)
     configured = [
         (provider, token)
         for provider, (key, _) in PROVIDERS.items()
+        if (feed == "overview" or provider == "currents")
         if (token := (os.getenv(key, "").strip() or (values.get(key) or "").strip()))
     ]
     if not configured:
@@ -110,7 +138,7 @@ async def get_news():
 
     # Fetch providers in parallel; each has a 12-second overall deadline.
     results = await asyncio.gather(
-        *(get_provider_news(provider, token) for provider, token in configured),
+        *(get_provider_news(provider, token, feed) for provider, token in configured),
         return_exceptions=True,
     )
     available = [result for result in results if isinstance(result, list)]

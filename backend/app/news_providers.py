@@ -1,4 +1,5 @@
-from datetime import UTC, datetime
+import re
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 from urllib.parse import urlsplit
 
@@ -6,6 +7,16 @@ import httpx
 from pydantic import BaseModel, HttpUrl
 
 Provider = Literal["marketaux", "currents"]
+Feed = Literal["overview", "housing"]
+HOUSING_HEADLINE = re.compile(
+    r"\b(mortgage\w*|real estate|propert(?:y|ies)|housing|house prices?|"
+    r"home loans?|homebuy\w*|homeowner\w*|refinanc\w*|landlord\w*|buy.to.let|rents?|rental\w*)\b",
+    re.IGNORECASE,
+)
+
+
+def is_housing_headline(title: str) -> bool:
+    return bool(HOUSING_HEADLINE.search(title)) and "mortgage import" not in title.lower()
 
 
 class NewsArticle(BaseModel):
@@ -18,12 +29,25 @@ class NewsArticle(BaseModel):
 
 
 async def request_news(
-    client: httpx.AsyncClient, provider: Provider, token: str
+    client: httpx.AsyncClient, provider: Provider, token: str, feed: Feed = "overview"
 ) -> httpx.Response:
     if provider == "marketaux":
         return await client.get(
             "https://api.marketaux.com/v1/news/all",
             params={"api_token": token, "language": "en", "limit": 3},
+        )
+    if feed == "housing":
+        now = datetime.now(UTC)
+        return await client.get(
+            "https://api.currentsapi.services/v2/search",
+            headers={"Authorization": f"Bearer {token}"},
+            params={
+                "language": "en",
+                "keywords": "mortgage",
+                "start_date": (now - timedelta(days=7)).isoformat(),
+                "end_date": now.isoformat(),
+                "page_size": 20,
+            },
         )
     return await client.get(
         "https://api.currentsapi.services/v2/latest-news",

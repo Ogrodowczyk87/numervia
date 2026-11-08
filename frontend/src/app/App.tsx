@@ -27,8 +27,8 @@ export default function App() {
       >
         Skip to content
       </a>
-      <Navbar />
       <MarketTicker />
+      <Navbar />
       <main id="main-content" tabIndex={-1}>
         <Suspense fallback={<p role="status" className="p-8">Loading page…</p>}>
           <Page />

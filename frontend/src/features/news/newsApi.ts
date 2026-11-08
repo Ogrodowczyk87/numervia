@@ -7,8 +7,8 @@ export type NewsArticle = {
   image_url: string | null;
 };
 
-export async function getFinancialNews(signal: AbortSignal): Promise<NewsArticle[]> {
-  const response = await fetch("/api/v1/news", {
+export async function getFinancialNews(signal: AbortSignal, feed: "overview" | "housing" = "overview"): Promise<NewsArticle[]> {
+  const response = await fetch(feed === "housing" ? "/api/v1/news?feed=housing" : "/api/v1/news", {
     signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
   });
   if (!response.ok) {

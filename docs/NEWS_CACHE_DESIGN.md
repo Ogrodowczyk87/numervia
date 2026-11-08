@@ -15,7 +15,7 @@ cache, osobną blokadę procesu, rejestr prób w kroczącym oknie 24 godzin i pr
 po błędzie. Wyniki są łączone bez powtórzeń tych samych URL (pomijając fragment),
 a awaria jednego źródła nie blokuje drugiego. Limity lokalne: Marketaux 80 prób,
 Currents 200 prób. Dane, liczniki i blokady nadal żyją w pamięci procesu;
-restart je usuwa, a instancje Lambdy mają osobne kopie. W obecnym widoku dwa
+restart je usuwa, a instancje Lambdy mają osobne kopie. Dla samego zestawu ogólnego dwa
 źródła to zwykle do 8 zapytań na dobę przy ciągłej pracy jednego procesu
 (4 Marketaux + 4 Currents), niezależnie od liczby kart i odwiedzin. Nie jest to
 gwarancja dla restartów ani wielu procesów. API zwraca listę z polem
@@ -148,6 +148,34 @@ częścią przyszłej implementacji trwałego cache.
 Klucz `CURRENTS_API_KEY` dopisuje się do lokalnego `backend/.env`. Wymagany jest
 bezpłatny plan; nie aktywujemy płatnych planów ani triali wymagających karty.
 Ta integracja nie rejestruje konta i nie tworzy klucza za użytkownika.
+
+### Wdrożony lokalnie zestaw „Nieruchomości i kredyty”
+
+`GET /api/v1/news?feed=housing` pobiera wyłącznie Currents V2 Search:
+`keywords=mortgage`, język angielski, ostatnie 7 dni, maksymalnie 20 wyników,
+bez paginacji. Nagłówki są dodatkowo sprawdzane pod kątem słów dotyczących
+nieruchomości, kredytów hipotecznych, najmu i refinansowania. To prosty filtr
+słów, nie ocena jakości dziennikarskiej; nie gwarantuje kompletności tematu.
+
+Zestaw `housing` ma osobny cache i przerwę po błędzie na minimum 6 godzin.
+Wszystkie zestawy Currents rezerwują jednostki we wspólnym liczniku 200 prób
+na ostatnie 24 godziny; blokada po limicie dostawcy również jest wspólna.
+Przy obu istniejących źródłach ogólnych i tym zestawie to zwykle do 12 zapytań
+na dobę: 4 Marketaux + 4 Currents ogólne + 4 Currents nieruchomości. Restart
+procesu nadal usuwa cache i liczniki; adapter S3 pozostaje planem.
+
+Frontend pobiera oba zestawy niezależnie. Awaria nieruchomości nie usuwa
+wiadomości ogólnych. Pod mapą widnieje „Property & mortgages”, bez powtarzania
+URL obecnych w lewej kolumnie. Na desktopie liczba kart zależy od dostępnej
+wysokości i szerokości prawej kolumny, maksymalnie od liczby zwróconych wyników.
+Sekcja ogólna pokazuje połowę pobranych artykułów (nieparzyste liczby
+zaokrąglamy w górę). Nieruchomości pokazują najwyżej połowę dostępnych
+wyników po usunięciu powtórzeń z widocznymi newsami ogólnymi. Na telefonie
+wyświetlamy do 2 kart nieruchomości. Ograniczenia dotyczą prezentacji,
+bez dodatkowego pobierania ani zmiany sześciogodzinnego cache. Zmiana rozmiaru i pomiar przez ResizeObserver
+nie powodują ponownego pobierania danych. Krótkie listy lub brak wyników nie są
+uzupełniane fikcyjnymi wiadomościami; dokładne wyrównanie przy małej ilości
+danych może być niemożliwe.
 
 ## Stan i bezpieczne odświeżanie
 

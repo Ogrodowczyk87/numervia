@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { ThemeProvider } from "../theme/ThemeProvider";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import MarketTicker from "../components/MarketTicker";
@@ -19,7 +20,7 @@ export default function App() {
         : HomePage;
 
   return (
-    <>
+    <ThemeProvider>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-surface focus:p-4"
@@ -34,6 +35,6 @@ export default function App() {
         </Suspense>
       </main>
       <Footer />
-    </>
+    </ThemeProvider>
   );
 }

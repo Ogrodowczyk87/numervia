@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTheme } from "../theme/ThemeProvider";
 
 const links = [
   { href: "/", label: "Home" },
@@ -12,6 +13,7 @@ const links = [
 ];
 
 export default function Navbar() {
+  const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
 
@@ -30,6 +32,15 @@ export default function Navbar() {
         <a href="/" onClick={() => setIsOpen(false)} className="text-xl font-bold tracking-tight">
           <span aria-hidden="true" className="mr-2 text-brand">∿</span>Numervia
         </a>
+        <div className="ml-auto flex items-center gap-2 xl:order-last xl:ml-0">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line px-3 text-sm text-muted hover:bg-surface-raised focus-visible:outline-2 focus-visible:outline-brand"
+          >
+            <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+          </button>
         <button
           ref={toggle}
           type="button"
@@ -43,6 +54,7 @@ export default function Navbar() {
             {isOpen ? <path d="m6 6 12 12M6 18 18 6" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
           </svg>
         </button>
+        </div>
         <ul
           id="navigation-links"
           className={`${isOpen ? "flex" : "hidden"} w-full flex-col gap-1 border-t border-line pt-3 text-sm font-medium xl:flex xl:w-auto xl:flex-row xl:items-center xl:gap-2 xl:border-0 xl:pt-0`}

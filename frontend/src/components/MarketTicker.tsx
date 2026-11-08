@@ -1,4 +1,5 @@
 import { createElement, useState } from "react";
+import { useTheme } from "../theme/ThemeProvider";
 
 const markets = {
   Overview: "FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,FX:EURUSD,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD,CMCMARKETS:GOLD",
@@ -9,6 +10,7 @@ const markets = {
 };
 
 export default function MarketTicker() {
+  const { theme } = useTheme();
   const [market, setMarket] = useState<keyof typeof markets>("Overview");
   return (
     <section aria-label="Market overview" className="border-b border-line bg-surface">
@@ -21,9 +23,9 @@ export default function MarketTicker() {
         </div>
         <div className="min-w-0 flex-1 overflow-hidden" aria-label={`${market} quotes`}>
           {createElement("tv-ticker-tape", {
-            key: market,
+            key: `${market}-${theme}`,
             symbols: markets[market],
-            theme: "dark",
+            theme,
             style: { display: "block", width: "100%", minHeight: "80px" },
           })}
         </div>

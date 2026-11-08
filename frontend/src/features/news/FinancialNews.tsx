@@ -42,7 +42,7 @@ export default function FinancialNews() {
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
-          <article key={article.url} className="flex min-w-0 flex-col rounded-xl border border-line bg-surface p-6">
+          <article key={article.url} className="relative flex min-w-0 flex-col rounded-xl border border-line bg-surface p-6">
             {article.image_url && (
               <img
                 src={article.image_url}

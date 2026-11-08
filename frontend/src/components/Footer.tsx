@@ -1,11 +1,13 @@
+import Logo from "./Logo";
+
 export default function Footer() {
   return (
     <footer className="mt-16 border-t border-line bg-canvas/85 backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
           <div>
-            <a href="/" className="text-2xl font-bold tracking-tight">
-              <span aria-hidden="true" className="mr-2 text-brand">∿</span>Numervia
+            <a href="/" className="inline-flex rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand">
+              <Logo />
             </a>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
               Finance simulation & operations for a clearer financial future.

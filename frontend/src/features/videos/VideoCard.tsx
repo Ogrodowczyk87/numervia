@@ -6,7 +6,7 @@ export default function VideoCard({ video, active, onPlay }: {
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   return (
-    <article className="w-72 shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-surface sm:w-80">
+    <article className="relative w-72 shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-surface sm:w-80">
       {active ? (
         <iframe
           title={`YouTube: ${video.title}`}

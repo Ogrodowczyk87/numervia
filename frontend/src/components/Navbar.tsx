@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import Logo from "./Logo";
 import { useTheme } from "../theme/ThemeProvider";
 
 const links = [
@@ -21,7 +22,7 @@ export default function Navbar() {
     <header className="border-b border-line bg-canvas/90 backdrop-blur-xl">
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6"
+        className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
         onKeyDown={(event) => {
           if (event.key === "Escape" && isOpen) {
             setIsOpen(false);
@@ -29,8 +30,8 @@ export default function Navbar() {
           }
         }}
       >
-        <a href="/" onClick={() => setIsOpen(false)} className="text-xl font-bold tracking-tight">
-          <span aria-hidden="true" className="mr-2 text-brand">∿</span>Numervia
+        <a href="/" onClick={() => setIsOpen(false)} className="inline-flex shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand">
+          <Logo />
         </a>
         <div className="ml-auto flex items-center gap-2 xl:order-last xl:ml-0">
           <button

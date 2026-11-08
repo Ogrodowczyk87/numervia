@@ -57,6 +57,7 @@ export default function FinancialNews() {
             )}
             <p className="break-words text-xs font-medium text-soft">
               {article.source} · {publicationDate(article.published_at)}
+              {article.provider && ` · via ${article.provider === "currents" ? "Currents" : "Marketaux"}`}
             </p>
             <h3 className="mt-3 break-words text-lg font-semibold leading-snug">
               <a href={article.url} target="_blank" rel="noopener noreferrer" className="hover:text-brand focus-visible:outline-2 focus-visible:outline-brand">

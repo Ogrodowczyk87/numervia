@@ -1,4 +1,5 @@
 export type NewsArticle = {
+  provider?: "marketaux" | "currents";
   title: string;
   url: string;
   source: string;
@@ -12,7 +13,9 @@ export async function getFinancialNews(signal: AbortSignal): Promise<NewsArticle
   });
   if (!response.ok) {
     throw new Error(
-      response.status === 503
+      response.status === 429
+        ? "Financial news provider request limit reached. Please try again later."
+        : response.status === 503
         ? "Financial news is not configured yet."
         : "Financial news is temporarily unavailable. Please try again later.",
     );

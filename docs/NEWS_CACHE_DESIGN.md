@@ -10,12 +10,15 @@ Każda zakładka i każdy użytkownik mają czytać wspólnie zapisane wiadomoś
 Ruch na stronie nie może uruchamiać pobierania od dostawcy. Wyłączenie newsów
 lub awaria dostawcy nie mogą blokować kalkulatora ani pozostałej strony.
 
-Obecny `backend/app/news.py` obsługuje Marketaux i Currents. Każdy ma godzinny
+Obecny `backend/app/news.py` obsługuje Marketaux i Currents. Każdy ma sześciogodzinny
 cache, osobną blokadę procesu, rejestr prób w kroczącym oknie 24 godzin i przerwę
 po błędzie. Wyniki są łączone bez powtórzeń tych samych URL (pomijając fragment),
 a awaria jednego źródła nie blokuje drugiego. Limity lokalne: Marketaux 80 prób,
 Currents 200 prób. Dane, liczniki i blokady nadal żyją w pamięci procesu;
-restart je usuwa, a instancje Lambdy mają osobne kopie. API zwraca listę z polem
+restart je usuwa, a instancje Lambdy mają osobne kopie. W obecnym widoku dwa
+źródła to zwykle do 8 zapytań na dobę przy ciągłej pracy jednego procesu
+(4 Marketaux + 4 Currents), niezależnie od liczby kart i odwiedzin. Nie jest to
+gwarancja dla restartów ani wielu procesów. API zwraca listę z polem
 `provider`, ale nie zwraca jeszcze daty pobrania ani stanu starszych danych.
 Poniższa architektura trwałego cache pozostaje projektem, nie wdrożonym kodem.
 
@@ -29,7 +32,7 @@ Proponowany zestaw do późniejszego wdrożenia:
 - Jeden mały, prywatny bucket S3 na stan newsów, oddzielony od hostingu UI.
 - Jeden obiekt `news/state-v1.json`: aktualne zestawy, daty i rejestr prób.
 - Jedna funkcja Python Lambda odświeżająca wiadomości, bez publicznego URL.
-- Jeden harmonogram EventBridge Scheduler, na start co 2 godziny w UTC.
+- Jeden harmonogram EventBridge Scheduler, na start co 6 godzin w UTC.
 - Istniejący backend FastAPI czyta S3; jego endpoint newsów nie posiada klucza
   żadnego dostawcy i nie ma ścieżki awaryjnej pobierającej dane od dostawców.
 
@@ -74,9 +77,9 @@ Wzór planowania: liczba zestawów × odświeżenia na dobę × strony wyników.
 
 | Wariant | Zestawy | Interwał | Strony | Planowane zapytania/dobę |
 | --- | ---: | ---: | ---: | ---: |
-| Start: obecne ogólne wiadomości | 1 | 2 godziny | 1 | 12 |
-| Rozszerzenie do czterech kategorii | 4 | 2 godziny | 1 | 48 |
-| Przykład dziesięciu kategorii | 10 | 4 godziny | 1 | 60 |
+| Start: obecne ogólne wiadomości | 1 | 6 godzin | 1 | 4 |
+| Rozszerzenie do czterech kategorii | 4 | 6 godzin | 1 | 16 |
+| Przykład dziesięciu kategorii | 10 | 6 godzin | 1 | 40 |
 | Niedopuszczalna konfiguracja | 10 | 2 godziny | 1 | 120 |
 
 Na start pozostaje jedna istniejąca kategoria `overview`, język `en`, limit 3,
@@ -85,7 +88,9 @@ Maksymalnie 10 skonfigurowanych zestawów w tej wersji projektu.
 
 Reguły wspólne dla jednego klucza Marketaux:
 
-1. Konfiguracja może planować najwyżej 60 zapytań na dobę.
+1. Każdy zestaw odświeżamy nie częściej niż co 6 godzin. Także po błędzie
+   następna próba następuje najwcześniej po 6 godzinach (lub później według
+   `Retry-After`). Konfiguracja może planować najwyżej 60 zapytań na dobę.
 2. Twardy limit: 80 zarezerwowanych prób w dowolnych ostatnich 24 godzinach.
    Kroczące okno unika zależności od niepotwierdzonej godziny resetu dostawcy.
 3. Każde żądanie HTTP rezerwuje jednostkę PRZED połączeniem. Timeout, błąd,
@@ -108,8 +113,8 @@ rezerwacji 200 w ostatnich 24 godzinach. To osobny licznik od Marketaux.
 Dwa plany nie tworzą jednej wymiennej puli: wyczerpane 100 Marketaux nie może
 zostać odtworzone zapytaniem do Currents o dane Marketaux.
 
-Przykładowy przyszły podział 12 kategorii odświeżanych co 2 godziny:
-4 zestawy Marketaux × 12 = 48 oraz 8 zestawów Currents × 12 = 96 zapytań/dobę.
+Przykładowy przyszły podział 12 kategorii odświeżanych co 6 godzin:
+4 zestawy Marketaux × 4 = 16 oraz 8 zestawów Currents × 4 = 32 zapytania/dobę.
 To model do uzgodnienia, nie utworzone zakładki. Wymaga rozszerzenia początkowego
 limitu 10 zestawów oraz ponownego doboru timeoutu zadania. Mapowanie filtrów
 jest osobne: Currents V2 używa np. `economy_business_finance`,
@@ -136,8 +141,8 @@ korzystają z jednego obiektu oraz warunkowych zapisów ETag.
 HTTP 429 Currents może oznaczać limit dzienny lub chwilowy; wykorzystujemy
 `Retry-After`, a przy wyczerpaniu dziennym reset 00:00 UTC. Nie interpretujemy go
 jako minutowego błędu Marketaux. Obecna implementacja respektuje liczbowy
-`Retry-After` (sekundy), stosując minimum godzinną przerwę; bez poprawnego
-nagłówka ponawia najwcześniej za godzinę. Pełna polityka harmonogramu pozostaje
+`Retry-After` (sekundy), stosując minimum sześciogodzinną przerwę; bez poprawnego
+nagłówka ponawia najwcześniej za sześć godzin. Pełna polityka harmonogramu pozostaje
 częścią przyszłej implementacji trwałego cache.
 
 Klucz `CURRENTS_API_KEY` dopisuje się do lokalnego `backend/.env`. Wymagany jest
@@ -211,7 +216,7 @@ musi zachować licznik i blokadę.
 | --- | --- | --- |
 | Poprawne dane, także `[]` | Zapisz nowy zestaw i datę pobrania | Dane lub „No headlines available right now.” |
 | HTTP 402 `usage_limit_reached` | Blokada całego dostawcy na 24 godziny od błędu, potem pojedyncza próba w następnym oknie | Ostatnie dostępne dane z datą |
-| HTTP 429, limit minutowy | Respektuj poprawne `Retry-After`, bez nagłówka przerwa 15 minut; wznowienie dopiero w kolejnym dozwolonym oknie | Ostatnie dostępne dane z datą |
+| HTTP 429, limit minutowy | Respektuj poprawne `Retry-After`, bez nagłówka przerwa 6 godzin; wznowienie dopiero w kolejnym dozwolonym oknie | Ostatnie dostępne dane z datą |
 | Timeout, HTTP 5xx, błędny JSON | Zachowaj dane; kolejna próba w następnym oknie | Ostatnie dostępne dane z datą |
 | HTTP 401/403 | Zablokuj automatyczne pobieranie do korekty konfiguracji | Dane do upływu okresu dostępności |
 | Brak pierwszego zestawu / dane starsze niż 24 h | Żądanie użytkownika niczego nie odświeża | Czytelna informacja o niedostępności |
@@ -232,7 +237,7 @@ Brak parametru oznacza `overview`; nieznany identyfikator zwraca 422.
   "articles": [],
   "feed": "overview",
   "fetched_at": "2026-11-08T12:00:00Z",
-  "fresh_until": "2026-11-08T14:05:00Z",
+  "fresh_until": "2026-11-08T18:05:00Z",
   "serve_until": "2026-11-09T12:00:00Z",
   "stale": false
 }
@@ -268,11 +273,11 @@ może generować koszty AWS; budżet Marketaux nie jest limitem rachunku AWS.
 
 ## Skala i koszty do potwierdzenia przed wdrożeniem
 
-Dla 4 zestawów co 2 godziny i miesiąca 31 dni:
+Dla 4 zestawów co 6 godzin i miesiąca 31 dni:
 
-- 48 × 31 = 1488 prób Marketaux przy pełnym harmonogramie, po 3 artykuły.
-- 12 × 31 = 372 planowane uruchomienia zadania.
-- Około 2 × 1488 = 2976 zapisów stanu S3 (rezerwacja i wynik), plus zapisy
+- 16 × 31 = 496 prób Marketaux przy pełnym harmonogramie, po 3 artykuły.
+- 4 × 31 = 124 planowane uruchomienia zadania.
+- Około 2 × 496 = 992 zapisów stanu S3 (rezerwacja i wynik), plus zapisy
   blokad/porządkowania oraz odczyty zadania i publicznego API.
 - Stan ≤1 MiB, bez archiwum artykułów. Liczba odczytów publicznych zależy od
   ruchu i liczby instancji; nie jest ograniczona budżetem zapytań Marketaux.

@@ -7,7 +7,7 @@ def test_news_cache(
     assert news_client.get("/api/v1/news").json() == [news_article]
     assert news_client.get("/api/v1/news").json() == [news_article]
     assert news_provider.await_count == 1
-    now[0] += 3601
+    now[0] += 21601
     news_provider.return_value = provider_response({"data": []})
     assert news_client.get("/api/v1/news").json() == []
     assert news_client.get("/api/v1/news").json() == []

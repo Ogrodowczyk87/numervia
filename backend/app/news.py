@@ -13,7 +13,7 @@ from app.news_providers import NewsArticle, Provider, parse_articles, request_ne
 
 ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
 router = APIRouter(prefix="/api/v1", tags=["News"])
-CACHE_SECONDS = 60 * 60
+CACHE_SECONDS = 6 * 60 * 60
 DAY_SECONDS = 24 * 60 * 60
 LIMIT_MESSAGE = "Financial news provider request limit reached. Please try again later."
 PROVIDERS: dict[Provider, tuple[str, int]] = {
@@ -82,9 +82,15 @@ async def get_provider_news(provider: Provider, token: str) -> list[NewsArticle]
                 raise provider_error(state)
             response.raise_for_status()
             articles = parse_articles(provider, response.json())
-        except (httpx.HTTPError, TimeoutError, KeyError, TypeError, ValueError) as error:
+        except (
+            httpx.HTTPError,
+            TimeoutError,
+            KeyError,
+            TypeError,
+            ValueError,
+        ) as error:
             state.error_status = 502
-            state.retry_at = time.monotonic() + 5 * 60
+            state.retry_at = time.monotonic() + CACHE_SECONDS
             raise provider_error(state) from error
         state.articles = articles
         state.expires_at = time.monotonic() + CACHE_SECONDS

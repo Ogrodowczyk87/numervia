@@ -1,3 +1,4 @@
+import { apiUrl } from "../../config/api";
 import type {
   MortgageSimulationRequest,
   MortgageSimulationResponse,
@@ -6,7 +7,7 @@ import type {
 export async function simulateMortgage(
   request: MortgageSimulationRequest,
 ): Promise<MortgageSimulationResponse> {
-  const response = await fetch("/api/v1/mortgage/simulate", {
+  const response = await fetch(apiUrl("/api/v1/mortgage/simulate"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -18,7 +19,7 @@ export async function simulateMortgage(
   if (!response.ok) {
     if (response.status >= 500) {
       throw new Error(
-        "Backend jest niedostępny lub wystąpił błąd serwera. Sprawdź terminal FastAPI (port 8000).",
+        "The calculation service is temporarily unavailable. Please try again later.",
       );
     }
     if (response.status === 422) {

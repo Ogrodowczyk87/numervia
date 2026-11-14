@@ -1,35 +1,12 @@
-import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import NewsCard from "./NewsCard";
 import AdPlaceholder from "../../components/AdPlaceholder";
 import HousingNews from "./HousingNews";
-import { getFinancialNews } from "./newsApi";
-import type { NewsArticle } from "./newsApi";
+import useNewsFeed from "./useNewsFeed";
+import NewsMetadata from "./NewsMetadata";
 
 export default function FinancialNews({ sidebar }: { sidebar?: ReactNode }) {
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function load() {
-      try {
-        const news = await getFinancialNews(controller.signal);
-        if (!controller.signal.aborted) setArticles(news);
-      } catch (cause) {
-        if (!controller.signal.aborted) {
-          setError(cause instanceof Error && cause.name !== "TimeoutError"
-            ? cause.message
-            : "Financial news is temporarily unavailable. Please try again later.");
-        }
-      } finally {
-        if (!controller.signal.aborted) setIsLoading(false);
-      }
-    }
-    void load();
-    return () => controller.abort();
-  }, []);
+  const { articles, snapshot, loading: isLoading, error, stale } = useNewsFeed("overview");
 
   const visibleArticles = articles.slice(0, Math.ceil(articles.length / 2));
   const newsSection = (
@@ -38,6 +15,7 @@ export default function FinancialNews({ sidebar }: { sidebar?: ReactNode }) {
       <div role="status" className="mt-4 text-sm text-muted">
         {isLoading ? "Loading financial news…" : error || (articles.length === 0 ? "No headlines available right now." : "")}
       </div>
+      {snapshot && <NewsMetadata snapshot={snapshot} stale={stale} />}
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {visibleArticles.map((article) => (
           <NewsCard key={article.url} article={article} />

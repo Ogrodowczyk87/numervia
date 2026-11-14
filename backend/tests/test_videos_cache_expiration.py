@@ -1,20 +1,25 @@
-import httpx
-from fastapi.testclient import TestClient
-
-from app.main import app
+import pytest
 
 
-def test_videos_cache_expiration(video_provider, monkeypatch):
-    clock = [100.0]
-    monkeypatch.setattr("app.videos.time.monotonic", lambda: clock[0])
-    video_provider.return_value = httpx.Response(
-        200, json={"items": []}, request=httpx.Request("GET", "https://example.com")
-    )
-    with TestClient(app) as client:
-        assert client.get("/api/v1/videos").status_code == 200
-        clock[0] += 6 * 3600 - 1
-        assert client.get("/api/v1/videos").status_code == 200
-        assert video_provider.await_count == 3
-        clock[0] += 1
-        assert client.get("/api/v1/videos").status_code == 200
-        assert video_provider.await_count == 6
+@pytest.mark.parametrize(
+    "age,status,stale",
+    [
+        (0, 200, False),
+        (6, 200, False),
+        (7, 200, True),
+        (24, 503, None),
+        (25, 503, None),
+    ],
+)
+def test_videos_cache_expiration(
+    video_client, saved_videos, video_provider, age, status, stale
+):
+    for category in ("Finance", "Economy", "Technology"):
+        saved_videos[2](category, age_hours=age)
+    response = video_client.get("/api/v1/videos")
+    assert response.status_code == status
+    if status == 200:
+        assert response.json()["stale"] is stale
+    else:
+        assert int(response.headers["Retry-After"]) > 0
+    video_provider.assert_not_awaited()

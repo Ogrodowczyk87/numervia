@@ -21,6 +21,13 @@ const pounds = new Intl.NumberFormat("en-GB", {
   maximumFractionDigits: 0,
 });
 
+const axisPounds = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
 export default function MortgageChart({ result }: MortgageChartProps) {
   const baseline = result.baseline.schedule;
   const overpayment = result.with_overpayment.schedule;
@@ -86,7 +93,7 @@ export default function MortgageChart({ result }: MortgageChartProps) {
               width={65}
               tick={{ fill: "var(--color-muted)" }}
               tickFormatter={(value: number) =>
-                pounds.format(value)
+                axisPounds.format(value)
               }
             />
 

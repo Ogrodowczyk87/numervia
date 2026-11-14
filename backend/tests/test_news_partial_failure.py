@@ -1,43 +1,26 @@
-import httpx
 import pytest
+
+from app.news_providers import NewsArticle
 
 
 @pytest.mark.parametrize("failed", ["marketaux", "currents"])
-@pytest.mark.parametrize("error", [401, 429, 500, "network", "timeout", "invalid"])
-def test_news_partial_failure(
-    news_client,
-    news_provider,
-    news_article,
-    currents_article,
-    provider_response,
-    monkeypatch,
-    failed,
-    error,
-):
-    monkeypatch.setenv("CURRENTS_API_KEY", "currents-test-token")
-
-    async def request(url, **kwargs):
-        provider = "marketaux" if "marketaux" in url else "currents"
-        if provider == failed:
-            if error == "network":
-                raise httpx.ConnectError("private-token")
-            if error == "timeout":
-                raise TimeoutError("private-token")
-            if error == "invalid":
-                return provider_response({})
-            return provider_response({"error": "private-token"}, error)
-        payload = (
-            {"data": [news_article]}
-            if provider == "marketaux"
-            else {"status": "ok", "news": [currents_article]}
-        )
-        return provider_response(payload)
-
-    news_provider.side_effect = request
-    response = news_client.get("/api/v1/news")
-    assert response.status_code == 200
-    assert len(response.json()) == 1
-    assert response.json()[0]["provider"] != failed
-    assert "private-token" not in response.text
-    assert news_client.get("/api/v1/news").json() == response.json()
-    assert news_provider.await_count == 2
+@pytest.mark.parametrize("age", [0, 7, 24])
+def test_news_partial_failure(news_client, saved_news, news_article, failed, age):
+    store, _, save = saved_news
+    healthy = "currents" if failed == "marketaux" else "marketaux"
+    save(f"{healthy}:overview", [NewsArticle(**{**news_article, "provider": healthy})])
+    save(
+        f"{failed}:overview",
+        [
+            NewsArticle(
+                **{**news_article, "provider": failed, "url": "https://example.com/old"}
+            )
+        ],
+        age_hours=age,
+    )
+    store.update(
+        lambda state: setattr(state.providers[failed], "provider_disabled", True)
+    )
+    result = news_client.get("/api/v1/news").json()
+    assert len(result["articles"]) == (1 if age == 24 else 2)
+    assert result["stale"] is (age == 7)

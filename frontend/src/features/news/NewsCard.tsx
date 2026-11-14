@@ -26,6 +26,12 @@ export default function NewsCard({ article, compact = false }: { article: NewsAr
         {article.source} · {publicationDate(article.published_at)}
         {article.provider && ` · via ${article.provider === "currents" ? "Currents" : "Marketaux"}`}
       </p>
+      {article.provider === "currents" && (
+        <a href="https://currentsapi.services/" target="_blank" rel="noopener noreferrer"
+          className="mt-2 text-xs text-brand hover:underline focus-visible:outline-2 focus-visible:outline-brand">
+          Powered by Currents News API<span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      )}
       <h3 className={`mt-3 break-words text-lg font-semibold leading-snug ${compact ? "line-clamp-3" : ""}`}>
         <a href={article.url} target="_blank" rel="noopener noreferrer" className="hover:text-brand focus-visible:outline-2 focus-visible:outline-brand">
           {article.title}<span className="sr-only"> (opens in a new tab)</span>

@@ -4,6 +4,8 @@ Data: 8 listopada 2026. Zadanie: LL-049 — projekt przed wdrożeniem AWS.
 Status: propozycja do implementacji w osobnym zadaniu. Ten dokument nie oznacza
 utworzenia zasobów, zmiany uprawnień ani gotowości obecnego kodu do produkcji.
 
+Aktualizacja 14 listopada 2026: lokalny model, magazyn plikowy, rezerwacje i CLI zaimplementowano; opis w [NEWS_LOCAL_CACHE.md](NEWS_LOCAL_CACHE.md). Endpoint i frontend są już przełączone na ten magazyn; odczyt strony nie wywołuje dostawców. Poniższe opisy S3 i harmonogramu pozostają projektem; wskazany niżej dawny stan API to opis historyczny, zastąpiony integracją opisaną w NEWS_LOCAL_CACHE.md.
+
 ## Cel i obecny stan
 
 Każda zakładka i każdy użytkownik mają czytać wspólnie zapisane wiadomości.

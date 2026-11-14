@@ -33,7 +33,7 @@ export default function MortgageCalculator() {
       } else {
         setError(
           cause instanceof TypeError
-            ? "Cannot connect to the API. Check that the backend is running."
+            ? "Unable to connect. Please try again later."
             : cause instanceof Error
               ? cause.message
               : "An unexpected error occurred.",

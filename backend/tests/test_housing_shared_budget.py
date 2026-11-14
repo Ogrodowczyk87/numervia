@@ -1,15 +1,27 @@
-def test_housing_shared_budget(
-    news_client, news_provider, provider_response, monkeypatch
-):
-    from app.news import cache
+import asyncio
+from unittest.mock import AsyncMock
 
-    monkeypatch.delenv("MARKETAUX_API_TOKEN")
-    monkeypatch.setenv("CURRENTS_API_KEY", "test-token")
-    monkeypatch.setattr("app.news.time.monotonic", lambda: 100.0)
-    cache.providers["currents"].attempts.extend([100.0] * 199)
-    news_provider.return_value = provider_response({"status": "ok", "news": []})
-    assert news_client.get("/api/v1/news").status_code == 200
-    assert news_client.get("/api/v1/news?feed=housing").status_code == 429
-    assert news_client.get("/api/v1/news").status_code == 200
-    assert len(cache.providers["currents"].attempts) == 200
-    news_provider.assert_awaited_once()
+from app.news_refresh import refresh_feed
+from app.news_state import Attempt
+
+
+def test_housing_shared_budget(saved_news):
+    store, now, _ = saved_news
+
+    def fill(state):
+        state.providers["currents"].attempts = [
+            Attempt(id=str(i), provider="currents", feed="overview", at=now, slot=now)
+            for i in range(199)
+        ]
+
+    store.update(fill)
+    fetch = AsyncMock(return_value=[])
+    assert (
+        asyncio.run(refresh_feed(store, "currents:overview", now, now, fetch)).status
+        == "updated"
+    )
+    assert (
+        asyncio.run(refresh_feed(store, "currents:housing", now, now, fetch)).status
+        == "budget_exhausted"
+    )
+    fetch.assert_awaited_once()

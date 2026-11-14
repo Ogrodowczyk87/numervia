@@ -33,7 +33,7 @@
   :root:not([data-theme="light"]) { color-scheme: dark; }
   body {
     margin: 0;
-    min-width: 320px;
+    min-width: 0;
     font-family: system-ui, sans-serif;
     color: var(--color-ink);
     background-color: var(--color-canvas);

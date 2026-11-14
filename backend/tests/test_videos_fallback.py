@@ -1,23 +1,23 @@
-from datetime import UTC, datetime
+import asyncio
+from datetime import timedelta
 from unittest.mock import AsyncMock
 
-import httpx
-from fastapi.testclient import TestClient
-
-from app.main import app
-from app.videos import VideoCache, VideoFeed
+from app.video_refresh import refresh_category
 
 
-def test_videos_fallback(monkeypatch):
-    cache = VideoCache()
-    cache.feed = VideoFeed(videos=[], updated_at=datetime.now(UTC))
-    monkeypatch.setattr("app.videos.cache", cache)
-    monkeypatch.setenv("YOUTUBE_API_KEY", "test-key")
-    provider = AsyncMock(side_effect=httpx.ConnectError("Unavailable"))
-    monkeypatch.setattr("app.videos.httpx.AsyncClient.get", provider)
-    with TestClient(app) as client:
-        first = client.get("/api/v1/videos")
-        second = client.get("/api/v1/videos")
-    assert first.status_code == second.status_code == 200
-    assert first.json()["stale"] is True
-    assert provider.await_count == 1  # Backoff prevents repeated failed requests.
+def test_videos_fallback(video_client, saved_videos):
+    store, now, save = saved_videos
+    save(age_hours=7)
+    before = store.read().categories["Finance"].snapshot
+    result = asyncio.run(
+        refresh_category(
+            store, "Finance", now, now, AsyncMock(side_effect=TimeoutError())
+        )
+    )
+    assert result.status == "provider_error"
+    assert store.read().categories["Finance"].snapshot == before
+    assert len(store.read().attempts) == 1
+    assert store.read().categories["Finance"].next_attempt_at == now + timedelta(
+        hours=6
+    )
+    assert video_client.get("/api/v1/videos").json()["stale"] is True

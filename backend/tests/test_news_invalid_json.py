@@ -1,8 +1,14 @@
+import asyncio
+
 import httpx
+import pytest
+
+from app.news_refresh import fetch_live
 
 
-def test_news_invalid_json(news_client, news_provider):
+def test_news_invalid_json(news_provider):
     news_provider.return_value = httpx.Response(
         200, text="not json", request=httpx.Request("GET", "https://example.com")
     )
-    assert news_client.get("/api/v1/news").status_code == 502
+    with pytest.raises(ValueError):
+        asyncio.run(fetch_live("marketaux", "overview", "test-token"))

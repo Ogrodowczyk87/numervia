@@ -1,32 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import NewsCard from "./NewsCard";
-import { getFinancialNews } from "./newsApi";
-import type { NewsArticle } from "./newsApi";
+import useNewsFeed from "./useNewsFeed";
+import NewsMetadata from "./NewsMetadata";
 
 export default function HousingNews({ excludeUrls }: { excludeUrls: string[] }) {
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { articles, snapshot, loading, error, stale } = useNewsFeed("housing");
   const [visibleCount, setVisibleCount] = useState(2);
   const grid = useRef<HTMLDivElement>(null);
   const excluded = new Set(excludeUrls.map((url) => url.split("#", 1)[0]));
   const available = articles.filter((article) => !excluded.has(article.url.split("#", 1)[0]));
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function load() {
-      try {
-        const result = await getFinancialNews(controller.signal, "housing");
-        if (!controller.signal.aborted) setArticles(result);
-      } catch {
-        if (!controller.signal.aborted) setError("Housing news is temporarily unavailable. Please try again later.");
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
-      }
-    }
-    void load();
-    return () => controller.abort();
-  }, []);
 
   useEffect(() => {
     const element = grid.current;
@@ -62,6 +44,7 @@ export default function HousingNews({ excludeUrls }: { excludeUrls: string[] }) 
           {loading ? "Loading housing news…" : error || "No housing headlines available right now."}
         </p>
       )}
+      {snapshot && <NewsMetadata snapshot={snapshot} stale={stale} />}
       <div ref={grid} className="mt-6 grid gap-4 @min-[32rem]:grid-cols-2 lg:min-h-0 lg:flex-1 lg:auto-rows-fr">
         {available.slice(0, Math.min(visibleCount, Math.ceil(available.length / 2))).map((article) => <NewsCard key={article.url} article={article} compact />)}
       </div>

@@ -1,11 +1,7 @@
-from fastapi.testclient import TestClient
-
-from app.main import app
-
-
-def test_videos_missing_key(video_provider, monkeypatch):
-    monkeypatch.delenv("YOUTUBE_API_KEY")
-    with TestClient(app) as client:
-        response = client.get("/api/v1/videos")
-    assert response.status_code == 503
+def test_video_api_does_not_need_youtube_key(
+    video_client, saved_videos, video_provider, monkeypatch
+):
+    monkeypatch.delenv("YOUTUBE_API_KEY", raising=False)
+    saved_videos[2]()
+    assert video_client.get("/api/v1/videos").status_code == 200
     video_provider.assert_not_awaited()

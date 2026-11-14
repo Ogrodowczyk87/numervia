@@ -1,36 +1,27 @@
-def test_housing_cache_isolation(
-    news_client, news_provider, currents_article, provider_response, monkeypatch
-):
-    from app.news import cache
+from app.news_providers import NewsArticle
 
-    monkeypatch.delenv("MARKETAUX_API_TOKEN")
-    monkeypatch.setenv("CURRENTS_API_KEY", "test-token")
-    now = [100.0]
-    monkeypatch.setattr("app.news.time.monotonic", lambda: now[0])
-    housing = {
-        **currents_article,
-        "title": "Mortgage rates",
-        "url": "https://example.com/mortgage",
-    }
-    news_provider.side_effect = [
-        provider_response({"status": "ok", "news": [currents_article]}),
-        provider_response({"status": "ok", "news": [housing]}),
-        provider_response({"status": "ok", "news": []}),
-    ]
-    assert (
-        news_client.get("/api/v1/news").json()[0]["title"] == currents_article["title"]
+
+def test_housing_cache_isolation(news_client, saved_news, news_article):
+    save = saved_news[2]
+    save(articles=[NewsArticle(**news_article)])
+    save(
+        "currents:housing",
+        [
+            NewsArticle(
+                **{
+                    **news_article,
+                    "provider": "currents",
+                    "title": "Mortgage rates",
+                    "url": "https://example.com/housing",
+                }
+            )
+        ],
     )
     assert (
-        news_client.get("/api/v1/news?feed=housing").json()[0]["title"]
-        == housing["title"]
+        news_client.get("/api/v1/news").json()["articles"][0]["title"]
+        == news_article["title"]
     )
-    now[0] += 21599
     assert (
-        news_client.get("/api/v1/news?feed=housing").json()[0]["title"]
-        == housing["title"]
+        news_client.get("/api/v1/news?feed=housing").json()["articles"][0]["title"]
+        == "Mortgage rates"
     )
-    assert news_provider.await_count == 2
-    now[0] += 1
-    assert news_client.get("/api/v1/news?feed=housing").json() == []
-    assert news_provider.await_count == 3
-    assert len(cache.providers["currents"].attempts) == 3

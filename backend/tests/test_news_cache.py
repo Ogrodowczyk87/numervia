@@ -1,14 +1,8 @@
-def test_news_cache(
-    news_client, news_provider, news_article, provider_response, monkeypatch
-):
-    now = [100.0]
-    monkeypatch.setattr("app.news.time.monotonic", lambda: now[0])
-    news_provider.return_value = provider_response({"data": [news_article]})
-    assert news_client.get("/api/v1/news").json() == [news_article]
-    assert news_client.get("/api/v1/news").json() == [news_article]
-    assert news_provider.await_count == 1
-    now[0] += 21601
-    news_provider.return_value = provider_response({"data": []})
-    assert news_client.get("/api/v1/news").json() == []
-    assert news_client.get("/api/v1/news").json() == []
-    assert news_provider.await_count == 2
+def test_news_cache(news_client, saved_news, news_provider):
+    store, _, save = saved_news
+    save()
+    before = store.path.read_bytes()
+    for _ in range(1000):
+        assert news_client.get("/api/v1/news").status_code == 200
+    assert store.path.read_bytes() == before
+    news_provider.assert_not_awaited()

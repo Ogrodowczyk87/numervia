@@ -1,3 +1,4 @@
+import { apiUrl } from "../../config/api";
 export type NewsArticle = {
   provider?: "marketaux" | "currents";
   title: string;
@@ -7,18 +8,34 @@ export type NewsArticle = {
   image_url: string | null;
 };
 
-export async function getFinancialNews(signal: AbortSignal, feed: "overview" | "housing" = "overview"): Promise<NewsArticle[]> {
-  const response = await fetch(feed === "housing" ? "/api/v1/news?feed=housing" : "/api/v1/news", {
+export type NewsFeed = {
+  articles: NewsArticle[];
+  feed: "overview" | "housing";
+  fetched_at: string;
+  fresh_until: string;
+  serve_until: string;
+  stale: boolean;
+  demo: boolean;
+};
+
+export async function getFinancialNews(signal: AbortSignal, feed: "overview" | "housing" = "overview"): Promise<NewsFeed> {
+  const response = await fetch(apiUrl(feed === "housing" ? "/api/v1/news?feed=housing" : "/api/v1/news"), {
     signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
+    cache: "no-store",
   });
   if (!response.ok) {
-    throw new Error(
-      response.status === 429
-        ? "Financial news provider request limit reached. Please try again later."
-        : response.status === 503
-        ? "Financial news is not configured yet."
-        : "Financial news is temporarily unavailable. Please try again later.",
-    );
+    throw new Error("Financial news is temporarily unavailable. Please try again later.");
   }
-  return response.json();
+  const data = await response.json();
+  if (!data || data.feed !== feed || !Array.isArray(data.articles)
+    || typeof data.stale !== "boolean" || typeof data.demo !== "boolean"
+    || ![data.fetched_at, data.fresh_until, data.serve_until].every(
+      (value) => typeof value === "string" && Number.isFinite(Date.parse(value)),
+    )
+    || !(Date.parse(data.fetched_at) < Date.parse(data.fresh_until)
+      && Date.parse(data.fresh_until) <= Date.parse(data.serve_until))
+    || Date.parse(data.serve_until) - Date.parse(data.fetched_at) > 86_400_000) {
+    throw new Error("Financial news is temporarily unavailable. Please try again later.");
+  }
+  return data;
 }

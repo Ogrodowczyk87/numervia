@@ -1,43 +1,29 @@
-import httpx
-from fastapi.testclient import TestClient
+import asyncio
 
-from app.main import app
+from app.video_refresh import fetch_live
 
 
-def test_videos_categories(video_provider):
-    def response_for(prefix):
-        return httpx.Response(
-            200,
-            json={
-                "items": [
-                    {
-                        "id": {"videoId": prefix + str(index) * 10},
-                        "snippet": {
-                            "title": "Example",
-                            "channelTitle": "Channel",
-                            "publishedAt": "2026-11-06T12:00:00Z",
-                            "thumbnails": {
-                                "default": {"url": "https://example.com/thumb.jpg"}
-                            },
-                        },
-                    }
-                    for index in range(3)
-                ]
-            },
-            request=httpx.Request("GET", "https://example.com"),
-        )
-
-    video_provider.side_effect = [
-        response_for("a"),
-        response_for("b"),
-        response_for("c"),
-    ]
-    with TestClient(app) as client:
-        response = client.get("/api/v1/videos")
-    assert response.status_code == 200
-    videos = response.json()["videos"]
+def test_videos_categories(video_provider, provider_response, saved_videos):
+    videos = []
+    for category, prefix in zip(
+        ("Finance", "Economy", "Technology"), ("a", "b", "c"), strict=True
+    ):
+        items = [
+            {
+                "id": {"videoId": prefix + str(i) * 10},
+                "snippet": {
+                    "title": "Finance &amp; economy",
+                    "channelTitle": "Channel",
+                    "publishedAt": "2026-11-06T12:00:00Z",
+                    "thumbnails": {"default": {"url": "https://example.com/thumb.jpg"}},
+                },
+            }
+            for i in range(3)
+        ]
+        video_provider.return_value = provider_response({"items": items})
+        videos.extend(asyncio.run(fetch_live(category, "test-key", saved_videos[1])))
     assert len(videos) == 6
-    assert [v["category"] for v in videos] == [
+    assert [v.category for v in videos] == [
         "Finance",
         "Finance",
         "Economy",
@@ -45,6 +31,8 @@ def test_videos_categories(video_provider):
         "Technology",
         "Technology",
     ]
+    assert videos[0].title == "Finance & economy"
+    assert video_provider.await_count == 3
     for call in video_provider.call_args_list:
         assert call.kwargs["params"]["videoEmbeddable"] == "true"
-        assert call.kwargs["params"]["relevanceLanguage"] == "en"
+        assert call.kwargs["params"]["maxResults"] == 5

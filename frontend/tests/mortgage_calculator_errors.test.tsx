@@ -5,8 +5,8 @@ import { mortgageResult } from "./mortgageFixture";
 vi.mock("../src/features/mortgage/MortgageChart", () => ({ default: () => <div>Balance chart</div> }));
 
 test.each([
-  [422, "Sprawdź dane kredytu"], [500, "Backend jest niedostępny"],
-  ["network", "Cannot connect"], ["timeout", "timed out"],
+  [422, "Sprawdź dane kredytu"], [500, "The calculation service is temporarily unavailable"],
+  ["network", "Unable to connect"], ["timeout", "timed out"],
 ])("handles calculation failure %s and re-enables submission", async (kind, message) => {
   const fetchMock = vi.fn();
   if (kind === "network") fetchMock.mockRejectedValue(new TypeError("Offline"));

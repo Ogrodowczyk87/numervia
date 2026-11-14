@@ -1,13 +1,15 @@
 import { useState } from "react";
 import type { Video } from "./videosApi";
 
-export default function VideoCard({ video, active, onPlay }: {
-  video: Video; active: boolean; onPlay: () => void;
+export default function VideoCard({ video, active, onPlay, demo = false }: {
+  video: Video; active: boolean; onPlay: () => void; demo?: boolean;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   return (
     <article className="relative w-72 shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-surface sm:w-80">
-      {active ? (
+      {demo ? (
+        <div className="flex h-56 items-center justify-center bg-canvas text-muted">Demo preview</div>
+      ) : active ? (
         <iframe
           title={`YouTube: ${video.title}`}
           src={`https://www.youtube-nocookie.com/embed/${video.video_id}?autoplay=1`}
@@ -26,7 +28,7 @@ export default function VideoCard({ video, active, onPlay }: {
         <p className="text-xs font-semibold uppercase tracking-wide text-brand">{video.category}</p>
         <h3 className="mt-2 text-lg font-semibold leading-snug">{video.title}</h3>
         <p className="mt-3 text-sm text-soft">{video.channel}</p>
-        <a href={`https://www.youtube.com/watch?v=${video.video_id}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-medium text-brand hover:underline">Watch on YouTube ↗<span className="sr-only"> (opens in a new tab)</span></a>
+        {!demo && <a href={`https://www.youtube.com/watch?v=${video.video_id}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-medium text-brand hover:underline">Watch on YouTube ↗<span className="sr-only"> (opens in a new tab)</span></a>}
       </div>
     </article>
   );

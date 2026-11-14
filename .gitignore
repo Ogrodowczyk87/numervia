@@ -38,3 +38,6 @@ cdk.out/
 # Lokalny plan i zasady współpracy
 /PROJECT_PLAN.md
 /AGENTS.md
+
+# Lokalny trwały stan wiadomości i blokady procesu
+/backend/.local/

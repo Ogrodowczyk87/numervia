@@ -33,7 +33,7 @@ export default function Navbar() {
         <a href="/" onClick={() => setIsOpen(false)} className="inline-flex shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand">
           <Logo />
         </a>
-        <div className="ml-auto flex items-center gap-2 xl:order-last xl:ml-0">
+        <div className="ml-auto flex items-center gap-2 2xl:order-last 2xl:ml-0">
           <button
             type="button"
             onClick={toggleTheme}
@@ -49,7 +49,7 @@ export default function Navbar() {
           aria-expanded={isOpen}
           aria-controls="navigation-links"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line text-muted hover:bg-surface-raised focus-visible:outline-2 focus-visible:outline-brand xl:hidden"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line text-muted hover:bg-surface-raised focus-visible:outline-2 focus-visible:outline-brand 2xl:hidden"
         >
           <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             {isOpen ? <path d="m6 6 12 12M6 18 18 6" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
@@ -58,7 +58,7 @@ export default function Navbar() {
         </div>
         <ul
           id="navigation-links"
-          className={`${isOpen ? "flex" : "hidden"} w-full flex-col gap-1 border-t border-line pt-3 text-sm font-medium xl:flex xl:w-auto xl:flex-row xl:items-center xl:gap-2 xl:border-0 xl:pt-0`}
+          className={`${isOpen ? "flex" : "hidden"} w-full flex-col gap-1 border-t border-line pt-3 text-sm font-medium 2xl:flex 2xl:w-auto 2xl:flex-row 2xl:items-center 2xl:gap-2 2xl:border-0 2xl:pt-0`}
         >
           {links.map((link) => (
             <li key={link.href}>

@@ -1,19 +1,26 @@
+import asyncio
+from datetime import timedelta
+
 import pytest
 
+from app.news_refresh import refresh_feed
 
-@pytest.mark.parametrize("delay,expected", [(7200, 21600), (43200, 43200)])
-def test_currents_retry_after(news_client, news_provider, monkeypatch, delay, expected):
-    import httpx
 
-    monkeypatch.delenv("MARKETAUX_API_TOKEN")
-    monkeypatch.setenv("CURRENTS_API_KEY", "currents-test-token")
-    news_provider.return_value = httpx.Response(
-        429,
-        headers={"Retry-After": str(delay)},
-        request=httpx.Request("GET", "https://example.com"),
+@pytest.mark.parametrize("header,hours", [("43200", 12), ("bad", 6)])
+def test_currents_retry_after(
+    news_provider, provider_response, saved_news, header, hours
+):
+    from app.news_refresh import fetch_live
+
+    store, now, _ = saved_news
+    response = provider_response({}, 429)
+    response.headers["Retry-After"] = header
+    news_provider.return_value = response
+
+    async def fetch(provider, feed):
+        return await fetch_live(provider, feed, "test-token")
+
+    asyncio.run(refresh_feed(store, "currents:overview", now, now, fetch))
+    assert store.read().providers["currents"].provider_blocked_until == now + timedelta(
+        hours=hours
     )
-    response = news_client.get("/api/v1/news")
-    assert response.status_code == 429
-    assert int(response.headers["Retry-After"]) >= expected - 1
-    assert news_client.get("/api/v1/news").status_code == 429
-    news_provider.assert_awaited_once()

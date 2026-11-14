@@ -1,10 +1,13 @@
-def test_news_success(news_client, news_provider, news_article, provider_response):
-    news_provider.return_value = provider_response({"data": [news_article]})
+from app.news_providers import NewsArticle
+
+
+def test_news_success(news_client, saved_news, news_article, news_provider):
+    _, _, save = saved_news
+    save(articles=[NewsArticle(**news_article)])
     response = news_client.get("/api/v1/news")
     assert response.status_code == 200
-    assert response.json() == [news_article]
-    assert "test-token" not in response.text
-    news_provider.assert_awaited_once_with(
-        "https://api.marketaux.com/v1/news/all",
-        params={"api_token": "test-token", "language": "en", "limit": 3},
-    )
+    assert response.json()["articles"] == [news_article]
+    assert response.json()["demo"] is True
+    assert response.headers["Cache-Control"] == "no-store"
+    assert "providers" not in response.json()
+    news_provider.assert_not_awaited()

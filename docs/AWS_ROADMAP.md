@@ -14,16 +14,18 @@ Cel: opublikować pierwszą działającą wersję Numervii, a następnie regular
 
 ## Bieżący stan
 
-Stan sprawdzony ponownie 14 listopada 2026 przez porównanie roadmapy z kodem i raportami wykonanych sprawdzeń.
+Stan zaktualizowany 15 listopada 2026 przez porównanie roadmapy z kodem i raportami wykonanych sprawdzeń.
 
 - **Punkty 1 i 3 — gotowe.** Pierwsza publikacja obejmuje kalkulator, newsy i filmy; szczegóły w [RELEASE_SCOPE.md](RELEASE_SCOPE.md).
 - **Punkt 2 — gotowy lokalnie w Chrome.** Fizyczny telefon oraz pełny interfejs z prawdziwymi widgetami i treściami zewnętrznymi pozostają do sprawdzenia przed publikacją. Wyniki w [UI_QA.md](UI_QA.md).
 - **Punkt 4 — kod gotowy lokalnie, warunki live otwarte.** Trwały stan, limity, kontrolowane odświeżanie oraz integracja API i frontendu dla newsów i filmów są gotowe lokalnie. Instrukcje: [NEWS_LOCAL_CACHE.md](NEWS_LOCAL_CACHE.md) i [VIDEO_LOCAL_CACHE.md](VIDEO_LOCAL_CACHE.md). Limit konta YouTube potwierdzono na zrzucie: Search Queries per day = 100, wykorzystanie 9. Wybrany budżet: 80 wyszukiwań/24 h, koszt 1 w tym koszyku; inicjalizacja stanu live pozostaje do wykonania.
-- **Punkty 5–10 — niewykonane.** Brak wdrożenia AWS; adapter Lambda jest zaimplementowany, ale infra nadal zawiera pliki zastępcze i nie wykonywano wdrożenia.
+- **Punkt 5 — w toku:** region eu-west-1 wybrany, wstępny szacunek w COSTS.md. Użytkownik potwierdził istniejący alarm budżetowy z wcześniejszych projektów; jego zakres i Billing pozostają niesprawdzone. Nie trzeba tworzyć duplikatu, jeśli alarm obejmuje Numervię.
+- **Punkt 6 — w toku:** projekt CDK w infra, prywatny S3 frontendu oraz CloudFront z OAC, HTTPS i wyjściem FrontendUrl opisane i sprawdzone lokalnym synth. Obsługa podstron jest wydzielona do functions/frontend-routes.js i podłączona jako viewer-request. Lambda w CDK, wspólny magazyn dodatków i harmonogramy pozostają otwarte.
+- **Punkty 7–10 — niewykonane.** Nie wykonywano bootstrap ani deploy; zasoby są tylko opisem w lokalnym szablonie.
 
 Ostatnie wykonane sprawdzenia: **249 testów backendu i 81 testów frontendu przeszły; Ruff, TypeScript i build poprawne.** Newsy i filmy demo sprawdzono także w Chrome przy 320 i 1440 px. Po przygotowaniu konfiguracji wykonano pełne testy i build. Chrome sprawdzono przy 320/375/768/1440 px z osobnym originem API i załadowanymi widgetami TradingView. Szczegóły w [AWS_APP_PREPARATION.md](AWS_APP_PREPARATION.md).
 
-Następne proponowane niezależne zadanie: punkt 5, sprawdzenie konta AWS i oszacowanie kosztów, bez tworzenia zasobów. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient i końcowe QA przed publikacją.
+Następne proponowane zadanie: konfiguracja cache index.html dla aktualizacji frontendu. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient, dwa zgłoszenia moderate w zależnościach CDK oraz końcowe QA przed publikacją.
 
 ## Kolejność prac
 
@@ -91,26 +93,31 @@ Wynik: jawna lista funkcji pierwszej publikacji. Bez rozpoczynania nowych moduł
 
 Docelowy wynik: kod przygotowany do wdrożenia. Kod punktu 4 ukończono lokalnie. Pozostały dwa warunki danych live: pierwsza inicjalizacja licznika filmów oraz wyjaśnienie zakresu publikacji newsów. Demo działa; całości nie oznaczono jako gotowej do publikacji live. Zasoby AWS jeszcze nie powstają.
 
-### 5. Konto AWS i koszty
+### 5. Konto AWS i koszty — W TOKU (15 listopada 2026)
 
-- [ ] Sprawdzić plan konta, aktualne warunki Free Tier i bieżące opłaty.
-- [ ] Wybrać region i oszacować koszty w `docs/COSTS.md`.
-- [ ] Uwzględnić Lambda, S3, CloudFront, logi, transfer oraz zasoby tworzone przez CDK bootstrap.
-- [ ] Uwzględnić także trwały cache newsów i filmów oraz zadania ich odświeżania; ponownie oszacować koszt pełnej wybranej wersji.
-- [ ] Po wyraźnym poleceniu skonfigurować alerty budżetowe przed upublicznieniem API.
+- [ ] Sprawdzić plan konta, Free Tier, kredyty i bieżące opłaty. Użytkownik korzysta z IAM bez potwierdzonego dostępu do Billing; sprawdzenie pozostaje dla właściciela konta przed wdrożeniem. Nie zmieniano uprawnień.
+- [x] Wybrać region i wstępnie oszacować koszty w `docs/COSTS.md`: Europe (Ireland), eu-west-1. Model 1000 wizyt i 3000 wywołań API/miesiąc: około 0,46 USD przed podatkami, bez dostępnych bezpłatnych pul; założenia wymagają pomiarów.
+- [x] Uwzględnić Lambda, S3, CloudFront, logi, transfer oraz zasoby CDK bootstrap w modelu; ponowić wycenę po cdk synth.
+- [x] Uwzględnić cache newsów i filmów, dwie funkcje odświeżające i dwa harmonogramy; model obejmuje pełny wybrany zakres.
+- [ ] Sprawdzić zakres istniejącego alarmu budżetowego zgłoszonego przez użytkownika: czy obejmuje Numervię, jest aktywny i ma właściwego odbiorcę. Jeśli tak, wykorzystać go; nowy alert tworzyć tylko w razie potrzeby i po wyraźnym poleceniu. Samo istnienie alarmu nie potwierdza jego filtrów ani nie zatrzymuje wydatków.
 
 Wynik: znane założenia kosztowe. Cel £0–£5 miesięcznie nie jest gwarancją ani twardym limitem; alerty same nie zatrzymują wydatków.
 
-### 6. Przygotowanie infrastruktury w kodzie
+### 6. Przygotowanie infrastruktury w kodzie — W TOKU (15 listopada 2026)
 
-- [ ] Przygotować AWS CDK v2 w katalogu `infra/`.
-- [ ] Opisać Lambda z Function URL, prywatny S3 oraz CloudFront z OAC i HTTPS.
+- [x] Przygotować AWS CDK v2 w infra: package.json i lockfile, tsconfig.json, cdk.json, bin/numervia.ts oraz lib/numervia-stack.ts. Zależności są w infra; usunięto duplikat pakage.json. CDK CLI 2.1148.1 działa.
+- [x] Opisać prywatny S3 frontendu: blokada dostępu publicznego, BucketOwnerEnforced, szyfrowanie S3-managed, wymuszenie HTTPS i RemovalPolicy.RETAIN.
+- [x] Opisać CloudFront z OAC i podpisywaniem SigV4, odczytem S3 ograniczonym do tej dystrybucji, przekierowaniem na HTTPS, kompresją, PriceClass_100 i index.html jako domyślnym dokumentem.
+- [x] Dodać CfnOutput FrontendUrl. Adres zostanie wyliczony przy przyszłym wdrożeniu; nie jest jeszcze działającą stroną.
+- [ ] Opisać Lambda API z Function URL w CDK; adapter Pythona jest gotowy, ale zasób Lambda nie jest jeszcze dodany do stacka.
 - [ ] Przygotować uzgodnione przechowywanie wspólnego stanu oraz harmonogramy odświeżania dodatków; oddzielić odczyt publicznego API od pobierania danych dostawców.
 - [ ] Ustawić timeout, pamięć, limit współbieżności i retencję logów.
-- [ ] Uwzględnić obsługę adresów aplikacji i pamięci podręcznej frontendu.
-- [ ] Wykonać lokalne `cdk synth` i przejrzeć wygenerowaną konfigurację.
+- [x] Obsłużyć bezpośrednie wejścia na /mortgage-calculator, /market-data i /tech, także z końcowym ukośnikiem, przez osobny plik CloudFront Function. Sprawdzono 12 przypadków tras i zachowanie query string.
+- [ ] Skonfigurować pamięć podręczną frontendu, w tym index.html.
+- [x] Wykonać kompilację TypeScript i lokalne cdk synth --no-lookups dla aktualnego zakresu frontendu. Wynik zawiera AWS::S3::Bucket, AWS::S3::BucketPolicy, AWS::CloudFront::OriginAccessControl oraz AWS::CloudFront::Distribution. Sprawdzono blokadę publicznego dostępu, Deny bez HTTPS i uprawnienie GetObject tylko dla wskazanej dystrybucji.
+- [ ] Po dodaniu pozostałych zasobów ponownie wykonać synth, przejrzeć cały szablon, uprawnienia i uaktualnić wycenę. Ocenić dwa zgłoszenia moderate dotyczące zależności CDK; nie używać audit fix --force bez przeglądu zmian.
 
-Wynik: konkretna lista zasobów gotowa do przeglądu; bez wykonywania bootstrap ani deploy.
+Docelowy wynik: kompletna lista zasobów gotowa do przeglądu. Aktualnie przygotowano część frontendową; bez bootstrap ani deploy. RemovalPolicy.RETAIN oznacza, że po przyszłym usunięciu stacka bucket pozostanie i może nadal generować koszty przechowywania.
 
 ### 7. Zatwierdzenie wdrożenia
 
@@ -163,3 +170,11 @@ Wynik: powtarzalny sposób publikowania zmian pod tym samym adresem.
 | 2026-11-14 | 4. Pozostałe przygotowanie kodu | Mangum, produkcyjny adres API i CORS, konfiguracja środowiska, prostsze błędy kalkulatora, atrybucja Currents. 249 testów backendu, 81 frontendu, Ruff, TypeScript i build poprawne; Chrome z osobnym API i prawdziwymi widgetami TradingView sprawdzony. | Live filmów czeka na potwierdzenie resetu/24 h bez wywołań; zakres publikacji newsów do wyjaśnienia. Bez AWS i live refresh. |
 
 Uwaga QA punktu 4: z widgetami TradingView występuje ostrzeżenie ResizeObserver (w porównaniu 9 z widgetami, 0 bez). Układ i kalkulator działają; szczegóły oraz ograniczenia w AWS_APP_PREPARATION.md. Nie wyciszano ostrzeżenia.
+
+| 2026-11-15 | 5. Region i model kosztów | Wybrano eu-west-1; publiczne regionalne stawki AWS i model 1000/10 000/100 000 wizyt zapisano w COSTS.md. Bez zasobów, zmian IAM i dostępu do Billing. | Plan konta, Free Tier/kredyty i alerty budżetowe wymagają potwierdzenia przed wdrożeniem. |
+
+## Aktualizacja infrastruktury — 15 listopada 2026
+
+Użytkownik przygotował kod S3 i CloudFront oraz uruchomił tsc/synth. Pokazany wynik i lokalny szablon potwierdzają cztery typy zasobów frontendowych oraz FrontendUrl. Odhaczono tylko wykonany zakres; podstrony React, backend i stan dodatków w CDK, harmonogramy oraz końcowy przegląd pozostają otwarte. Nie uruchamiano dodatkowego synth przy tej aktualizacji dokumentacji. Użytkownik zgłosił istniejący alarm budżetowy; zakres alarmu pozostaje do sprawdzenia. Bez zasobów AWS, zmian uprawnień, commita i pushu.
+
+Obsługa podstron: dodano osobny plik infra/functions/frontend-routes.js i powiązanie viewer-request. Kompilacja TypeScript, lokalny synth i 12 przypadków tras przeszły; sprawdzono także powiązanie w szablonie. Szablon zawiera dodatkowo AWS::CloudFront::Function. Nie wdrażano zasobów AWS.

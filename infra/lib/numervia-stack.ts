@@ -9,6 +9,7 @@ import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import type { Construct } from "constructs";
 import * as path from "node:path";
+import { createFrontendCachePolicy } from "./frontend-cache";
 
 export class NumerviaStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -29,6 +30,8 @@ export class NumerviaStack extends Stack {
       })
     });
 
+    const FrontendCachePolicy = createFrontendCachePolicy(this)
+
     const distribution = new cloudfront.Distribution(
       this,
       "FrontendDistribution",
@@ -43,6 +46,7 @@ export class NumerviaStack extends Stack {
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
           compress: true,
+          cachePolicy: FrontendCachePolicy,
           functionAssociations: [
             {
               function: routeRewrite,

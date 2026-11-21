@@ -14,7 +14,7 @@ Cel: opublikować pierwszą działającą wersję Numervii, a następnie regular
 
 ## Bieżący stan
 
-Stan zaktualizowany 15 listopada 2026 przez porównanie roadmapy z kodem i raportami wykonanych sprawdzeń.
+Stan zaktualizowany 21 listopada 2026 przez porównanie roadmapy z kodem i raportami wykonanych sprawdzeń.
 
 - **Punkty 1 i 3 — gotowe.** Pierwsza publikacja obejmuje kalkulator, newsy i filmy; szczegóły w [RELEASE_SCOPE.md](RELEASE_SCOPE.md).
 - **Punkt 2 — gotowy lokalnie w Chrome.** Fizyczny telefon oraz pełny interfejs z prawdziwymi widgetami i treściami zewnętrznymi pozostają do sprawdzenia przed publikacją. Wyniki w [UI_QA.md](UI_QA.md).
@@ -25,7 +25,7 @@ Stan zaktualizowany 15 listopada 2026 przez porównanie roadmapy z kodem i rapor
 
 Ostatnie wykonane sprawdzenia: **249 testów backendu i 81 testów frontendu przeszły; Ruff, TypeScript i build poprawne.** Newsy i filmy demo sprawdzono także w Chrome przy 320 i 1440 px. Po przygotowaniu konfiguracji wykonano pełne testy i build. Chrome sprawdzono przy 320/375/768/1440 px z osobnym originem API i załadowanymi widgetami TradingView. Szczegóły w [AWS_APP_PREPARATION.md](AWS_APP_PREPARATION.md).
 
-Następne proponowane zadanie: konfiguracja cache index.html dla aktualizacji frontendu. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient, dwa zgłoszenia moderate w zależnościach CDK oraz końcowe QA przed publikacją.
+Następne proponowane zadanie: przygotowanie Lambda API z Function URL w CDK, w osobnym module. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient, dwa zgłoszenia moderate w zależnościach CDK oraz końcowe QA przed publikacją.
 
 ## Kolejność prac
 
@@ -113,7 +113,8 @@ Wynik: znane założenia kosztowe. Cel £0–£5 miesięcznie nie jest gwarancj�
 - [ ] Przygotować uzgodnione przechowywanie wspólnego stanu oraz harmonogramy odświeżania dodatków; oddzielić odczyt publicznego API od pobierania danych dostawców.
 - [ ] Ustawić timeout, pamięć, limit współbieżności i retencję logów.
 - [x] Obsłużyć bezpośrednie wejścia na /mortgage-calculator, /market-data i /tech, także z końcowym ukośnikiem, przez osobny plik CloudFront Function. Sprawdzono 12 przypadków tras i zachowanie query string.
-- [ ] Skonfigurować pamięć podręczną frontendu, w tym index.html.
+- [x] Przygotować politykę cache CloudFront w osobnym infra/lib/frontend-cache.ts i podłączyć ją do dystrybucji: MinTTL=0, DefaultTTL=0, MaxTTL=31536000; Gzip i Brotli włączone. Kompilacja, synth i sprawdzenie powiązania w szablonie przeszły 21 listopada 2026.
+- [ ] Przy publikacji ustawić metadane Cache-Control obiektów S3: index.html = no-cache, pliki assets z nazwami zawierającymi hash = public, max-age=31536000, immutable. Sprawdzić nagłówki odpowiedzi po wdrożeniu; polityka CloudFront sama ich nie ustawia.
 - [x] Wykonać kompilację TypeScript i lokalne cdk synth --no-lookups dla aktualnego zakresu frontendu. Wynik zawiera AWS::S3::Bucket, AWS::S3::BucketPolicy, AWS::CloudFront::OriginAccessControl oraz AWS::CloudFront::Distribution. Sprawdzono blokadę publicznego dostępu, Deny bez HTTPS i uprawnienie GetObject tylko dla wskazanej dystrybucji.
 - [ ] Po dodaniu pozostałych zasobów ponownie wykonać synth, przejrzeć cały szablon, uprawnienia i uaktualnić wycenę. Ocenić dwa zgłoszenia moderate dotyczące zależności CDK; nie używać audit fix --force bez przeglądu zmian.
 
@@ -178,3 +179,7 @@ Uwaga QA punktu 4: z widgetami TradingView występuje ostrzeżenie ResizeObserve
 Użytkownik przygotował kod S3 i CloudFront oraz uruchomił tsc/synth. Pokazany wynik i lokalny szablon potwierdzają cztery typy zasobów frontendowych oraz FrontendUrl. Odhaczono tylko wykonany zakres; podstrony React, backend i stan dodatków w CDK, harmonogramy oraz końcowy przegląd pozostają otwarte. Nie uruchamiano dodatkowego synth przy tej aktualizacji dokumentacji. Użytkownik zgłosił istniejący alarm budżetowy; zakres alarmu pozostaje do sprawdzenia. Bez zasobów AWS, zmian uprawnień, commita i pushu.
 
 Obsługa podstron: dodano osobny plik infra/functions/frontend-routes.js i powiązanie viewer-request. Kompilacja TypeScript, lokalny synth i 12 przypadków tras przeszły; sprawdzono także powiązanie w szablonie. Szablon zawiera dodatkowo AWS::CloudFront::Function. Nie wdrażano zasobów AWS.
+
+## Cache frontendu — 21 listopada 2026
+
+Dodano osobny moduł frontend-cache.ts i podłączono politykę do dystrybucji. Ponownie wykonano tsc i cdk synth --no-lookups; sprawdzono wartości TTL oraz referencję CachePolicyId. Nagłówki Cache-Control plików S3 pozostają do ustawienia przy publikacji. Punkt 6 nadal w toku; Lambda, stan dodatków i harmonogramy nie są jeszcze opisane. Bez bootstrap i deploy.

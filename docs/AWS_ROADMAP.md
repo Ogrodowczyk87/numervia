@@ -20,12 +20,12 @@ Stan zaktualizowany 21 listopada 2026 przez porównanie roadmapy z kodem i rapor
 - **Punkt 2 — gotowy lokalnie w Chrome.** Fizyczny telefon oraz pełny interfejs z prawdziwymi widgetami i treściami zewnętrznymi pozostają do sprawdzenia przed publikacją. Wyniki w [UI_QA.md](UI_QA.md).
 - **Punkt 4 — kod gotowy lokalnie, warunki live otwarte.** Trwały stan, limity, kontrolowane odświeżanie oraz integracja API i frontendu dla newsów i filmów są gotowe lokalnie. Instrukcje: [NEWS_LOCAL_CACHE.md](NEWS_LOCAL_CACHE.md) i [VIDEO_LOCAL_CACHE.md](VIDEO_LOCAL_CACHE.md). Limit konta YouTube potwierdzono na zrzucie: Search Queries per day = 100, wykorzystanie 9. Wybrany budżet: 80 wyszukiwań/24 h, koszt 1 w tym koszyku; inicjalizacja stanu live pozostaje do wykonania.
 - **Punkt 5 — w toku:** region eu-west-1 wybrany, wstępny szacunek w COSTS.md. Użytkownik potwierdził istniejący alarm budżetowy z wcześniejszych projektów; jego zakres i Billing pozostają niesprawdzone. Nie trzeba tworzyć duplikatu, jeśli alarm obejmuje Numervię.
-- **Punkt 6 — w toku:** projekt CDK w infra, prywatny S3 frontendu oraz CloudFront z OAC, HTTPS i wyjściem FrontendUrl opisane i sprawdzone lokalnym synth. Obsługa podstron jest wydzielona do functions/frontend-routes.js i podłączona jako viewer-request. Lambda w CDK, wspólny magazyn dodatków i harmonogramy pozostają otwarte.
+- **Punkt 6 — w toku:** projekt CDK w infra, prywatny S3 frontendu oraz CloudFront z OAC, HTTPS i wyjściem FrontendUrl opisane i sprawdzone lokalnym synth. Obsługa podstron jest wydzielona do functions/frontend-routes.js i podłączona jako viewer-request. Lambda API jest opisana w osobnym backend-api.ts i podłączona do stacka, z originem CloudFront w ALLOWED_ORIGINS. Function URL jest opisany w backend-url.ts, a BackendUrl dodany do wyjść stacka. Wspólny magazyn dodatków i harmonogramy pozostają otwarte.
 - **Punkty 7–10 — niewykonane.** Nie wykonywano bootstrap ani deploy; zasoby są tylko opisem w lokalnym szablonie.
 
 Ostatnie wykonane sprawdzenia: **249 testów backendu i 81 testów frontendu przeszły; Ruff, TypeScript i build poprawne.** Newsy i filmy demo sprawdzono także w Chrome przy 320 i 1440 px. Po przygotowaniu konfiguracji wykonano pełne testy i build. Chrome sprawdzono przy 320/375/768/1440 px z osobnym originem API i załadowanymi widgetami TradingView. Szczegóły w [AWS_APP_PREPARATION.md](AWS_APP_PREPARATION.md).
 
-Następne proponowane zadanie: przygotowanie Lambda API z Function URL w CDK, w osobnym module. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient, dwa zgłoszenia moderate w zależnościach CDK oraz końcowe QA przed publikacją.
+Następne proponowane zadanie: przygotować wspólny magazyn newsów i filmów w S3 oraz adapter odczytu/zapisu. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient, dwa zgłoszenia moderate w zależnościach CDK oraz końcowe QA przed publikacją.
 
 ## Kolejność prac
 
@@ -109,16 +109,18 @@ Wynik: znane założenia kosztowe. Cel £0–£5 miesięcznie nie jest gwarancj�
 - [x] Opisać prywatny S3 frontendu: blokada dostępu publicznego, BucketOwnerEnforced, szyfrowanie S3-managed, wymuszenie HTTPS i RemovalPolicy.RETAIN.
 - [x] Opisać CloudFront z OAC i podpisywaniem SigV4, odczytem S3 ograniczonym do tej dystrybucji, przekierowaniem na HTTPS, kompresją, PriceClass_100 i index.html jako domyślnym dokumentem.
 - [x] Dodać CfnOutput FrontendUrl. Adres zostanie wyliczony przy przyszłym wdrożeniu; nie jest jeszcze działającą stroną.
-- [ ] Opisać Lambda API z Function URL w CDK; adapter Pythona jest gotowy, ale zasób Lambda nie jest jeszcze dodany do stacka.
+- [x] Przygotować requirements-lambda.lock.txt i lokalną paczkę backend/build/lambda w kontenerze AWS Python 3.14 dla Linux x86_64. Użytkownik potwierdził import handlera i symulację health payload v2: HTTP 200, {"status":"ok"}. Paczka build jest ignorowana przez Git.
+- [x] Opisać Lambda API w osobnym infra/lib/backend-api.ts i podłączyć do stacka: Python 3.14, x86_64, app.handler.handler, paczka z fromAsset i dokładny origin CloudFront dla CORS w FastAPI.
+- [x] Dodać Function URL w osobnym backend-url.ts oraz output BackendUrl. Sprawdzono AuthType NONE, uprawnienia InvokeFunctionUrl z FunctionUrlAuthType NONE i InvokeFunction z InvokedViaFunctionUrl=true, output oraz brak drugiej konfiguracji CORS. Nie wdrożono publicznego API.
 - [ ] Przygotować uzgodnione przechowywanie wspólnego stanu oraz harmonogramy odświeżania dodatków; oddzielić odczyt publicznego API od pobierania danych dostawców.
-- [ ] Ustawić timeout, pamięć, limit współbieżności i retencję logów.
+- [x] Ustawić parametry Lambda API: 512 MB, timeout 10 s, reserved concurrency 2 i retencja logów 7 dni, RemovalPolicy.RETAIN. Sprawdzono w lokalnym synth. Parametry przyszłych funkcji odświeżających pozostają do ustalenia.
 - [x] Obsłużyć bezpośrednie wejścia na /mortgage-calculator, /market-data i /tech, także z końcowym ukośnikiem, przez osobny plik CloudFront Function. Sprawdzono 12 przypadków tras i zachowanie query string.
 - [x] Przygotować politykę cache CloudFront w osobnym infra/lib/frontend-cache.ts i podłączyć ją do dystrybucji: MinTTL=0, DefaultTTL=0, MaxTTL=31536000; Gzip i Brotli włączone. Kompilacja, synth i sprawdzenie powiązania w szablonie przeszły 21 listopada 2026.
 - [ ] Przy publikacji ustawić metadane Cache-Control obiektów S3: index.html = no-cache, pliki assets z nazwami zawierającymi hash = public, max-age=31536000, immutable. Sprawdzić nagłówki odpowiedzi po wdrożeniu; polityka CloudFront sama ich nie ustawia.
 - [x] Wykonać kompilację TypeScript i lokalne cdk synth --no-lookups dla aktualnego zakresu frontendu. Wynik zawiera AWS::S3::Bucket, AWS::S3::BucketPolicy, AWS::CloudFront::OriginAccessControl oraz AWS::CloudFront::Distribution. Sprawdzono blokadę publicznego dostępu, Deny bez HTTPS i uprawnienie GetObject tylko dla wskazanej dystrybucji.
 - [ ] Po dodaniu pozostałych zasobów ponownie wykonać synth, przejrzeć cały szablon, uprawnienia i uaktualnić wycenę. Ocenić dwa zgłoszenia moderate dotyczące zależności CDK; nie używać audit fix --force bez przeglądu zmian.
 
-Docelowy wynik: kompletna lista zasobów gotowa do przeglądu. Aktualnie przygotowano część frontendową; bez bootstrap ani deploy. RemovalPolicy.RETAIN oznacza, że po przyszłym usunięciu stacka bucket pozostanie i może nadal generować koszty przechowywania.
+Docelowy wynik: kompletna lista zasobów gotowa do przeglądu. Aktualnie przygotowano frontend i Lambda API z Function URL; bez bootstrap ani deploy. RemovalPolicy.RETAIN oznacza, że po przyszłym usunięciu stacka bucket pozostanie i może nadal generować koszty przechowywania.
 
 ### 7. Zatwierdzenie wdrożenia
 
@@ -183,3 +185,11 @@ Obsługa podstron: dodano osobny plik infra/functions/frontend-routes.js i powi�
 ## Cache frontendu — 21 listopada 2026
 
 Dodano osobny moduł frontend-cache.ts i podłączono politykę do dystrybucji. Ponownie wykonano tsc i cdk synth --no-lookups; sprawdzono wartości TTL oraz referencję CachePolicyId. Nagłówki Cache-Control plików S3 pozostają do ustawienia przy publikacji. Punkt 6 nadal w toku; Lambda, stan dodatków i harmonogramy nie są jeszcze opisane. Bez bootstrap i deploy.
+
+## Paczka backendu i Lambda w CDK — 21 listopada 2026
+
+W ramach nauki Dockera przygotowano paczkę Linux x86_64 z przypiętymi bibliotekami i kodem app, bez lokalnego .env i stanu .local. Użytkownik potwierdził import handlera oraz lokalny health check payload v2 (200). Dodano backend-api.ts i połączenie ze stackiem. Kompilacja TypeScript, synth i kontrole runtime, handlera, pamięci, timeoutu, współbieżności, originu CloudFront oraz retencji logów przeszły. Brak Function URL i brak wdrożenia AWS. Przygotowanie paczki jest na razie ręczne; przed powtarzalnymi wdrożeniami należy zapisać proces budowania.
+
+## Function URL — 21 listopada 2026
+
+Dodano osobny moduł backend-url.ts, połączenie w stacku i output BackendUrl. TypeScript, lokalny synth i kontrola obu uprawnień oraz ich warunków przeszły; CORS pozostaje w FastAPI. Adres będzie publiczny dopiero po przyszłym zatwierdzonym wdrożeniu. Wspólny stan dodatków, harmonogramy i pozostałe warunki publikacji nadal otwarte. Bez bootstrap i deploy.

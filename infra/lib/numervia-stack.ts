@@ -10,6 +10,8 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import type { Construct } from "constructs";
 import * as path from "node:path";
 import { createFrontendCachePolicy } from "./frontend-cache";
+import { createBackendApi } from "./backend-api";
+import { createBackendUrl } from "./backend-url";
 
 export class NumerviaStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -56,6 +58,17 @@ export class NumerviaStack extends Stack {
         }
       }
     );
+
+    const backendApi = createBackendApi(
+      this,
+      `https://${distribution.distributionDomainName}`
+    );
+
+    const backendUrl = createBackendUrl(backendApi);
+
+    new CfnOutput(this, "BackendUrl", {
+      value: backendUrl.url
+    });
 
     new CfnOutput(this, "FrontendUrl", {
       value: `https://${distribution.distributionDomainName}`

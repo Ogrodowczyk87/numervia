@@ -12,10 +12,14 @@ import * as path from "node:path";
 import { createFrontendCachePolicy } from "./frontend-cache";
 import { createBackendApi } from "./backend-api";
 import { createBackendUrl } from "./backend-url";
+import { createContentStateBucket } from "./content-state";
+import { grantContentStateRead } from "./content-state-access";
 
 export class NumerviaStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
+
+    const contentStateBucket = createContentStateBucket(this);
 
     const frontendBucket = new s3.Bucket(this, "FrontendBucket", {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -32,7 +36,7 @@ export class NumerviaStack extends Stack {
       })
     });
 
-    const FrontendCachePolicy = createFrontendCachePolicy(this)
+    const frontendCachePolicy = createFrontendCachePolicy(this);
 
     const distribution = new cloudfront.Distribution(
       this,
@@ -48,7 +52,7 @@ export class NumerviaStack extends Stack {
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
           compress: true,
-          cachePolicy: FrontendCachePolicy,
+          cachePolicy: frontendCachePolicy,
           functionAssociations: [
             {
               function: routeRewrite,
@@ -63,6 +67,8 @@ export class NumerviaStack extends Stack {
       this,
       `https://${distribution.distributionDomainName}`
     );
+
+    grantContentStateRead(contentStateBucket, backendApi);
 
     const backendUrl = createBackendUrl(backendApi);
 

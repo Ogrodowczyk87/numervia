@@ -18,5 +18,6 @@ def test_news_api_does_not_expose_private_state(news_client, saved_news):
         "serve_until",
         "stale",
         "demo",
+        "preview",
     }
     assert "credentials" not in response.text

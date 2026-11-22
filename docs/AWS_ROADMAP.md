@@ -14,18 +14,18 @@ Cel: opublikować pierwszą działającą wersję Numervii, a następnie regular
 
 ## Bieżący stan
 
-Stan zaktualizowany 21 listopada 2026 przez porównanie roadmapy z kodem i raportami wykonanych sprawdzeń.
+Stan zaktualizowany 22 listopada 2026 przez porównanie roadmapy z kodem i raportami wykonanych sprawdzeń.
 
 - **Punkty 1 i 3 — gotowe.** Pierwsza publikacja obejmuje kalkulator, newsy i filmy; szczegóły w [RELEASE_SCOPE.md](RELEASE_SCOPE.md).
 - **Punkt 2 — gotowy lokalnie w Chrome.** Fizyczny telefon oraz pełny interfejs z prawdziwymi widgetami i treściami zewnętrznymi pozostają do sprawdzenia przed publikacją. Wyniki w [UI_QA.md](UI_QA.md).
 - **Punkt 4 — kod gotowy lokalnie, warunki live otwarte.** Trwały stan, limity, kontrolowane odświeżanie oraz integracja API i frontendu dla newsów i filmów są gotowe lokalnie. Instrukcje: [NEWS_LOCAL_CACHE.md](NEWS_LOCAL_CACHE.md) i [VIDEO_LOCAL_CACHE.md](VIDEO_LOCAL_CACHE.md). Limit konta YouTube potwierdzono na zrzucie: Search Queries per day = 100, wykorzystanie 9. Wybrany budżet: 80 wyszukiwań/24 h, koszt 1 w tym koszyku; inicjalizacja stanu live pozostaje do wykonania.
 - **Punkt 5 — w toku:** region eu-west-1 wybrany, wstępny szacunek w COSTS.md. Użytkownik potwierdził istniejący alarm budżetowy z wcześniejszych projektów; jego zakres i Billing pozostają niesprawdzone. Nie trzeba tworzyć duplikatu, jeśli alarm obejmuje Numervię.
-- **Punkt 6 — w toku:** projekt CDK w infra, prywatny S3 frontendu oraz CloudFront z OAC, HTTPS i wyjściem FrontendUrl opisane i sprawdzone lokalnym synth. Obsługa podstron jest wydzielona do functions/frontend-routes.js i podłączona jako viewer-request. Lambda API jest opisana w osobnym backend-api.ts i podłączona do stacka, z originem CloudFront w ALLOWED_ORIGINS. Function URL jest opisany w backend-url.ts, a BackendUrl dodany do wyjść stacka. Prywatny ContentStateBucket i odczyt dwóch kluczy dla roli API są opisane w CDK. Czytnik S3 ma pierwszy test; podłączenie modeli i endpointów, zapis warunkowy i harmonogramy pozostają otwarte.
+- **Punkt 6 — w toku:** projekt CDK w infra, prywatny S3 frontendu oraz CloudFront z OAC, HTTPS i wyjściem FrontendUrl opisane i sprawdzone lokalnym synth. Obsługa podstron jest wydzielona do functions/frontend-routes.js i podłączona jako viewer-request. Lambda API jest opisana w osobnym backend-api.ts i podłączona do stacka, z originem CloudFront w ALLOWED_ORIGINS. Function URL jest opisany w backend-url.ts, a BackendUrl dodany do wyjść stacka. Prywatny ContentStateBucket i odczyt dwóch kluczy dla roli API są opisane w CDK. Czytnik S3 ma 7 sprawdzonych przypadków odczytu i błędów; plik news_s3_store.py jest obecnie pustym miejscem na adapter NewsState; podłączenie modeli i endpointów, zapis warunkowy i harmonogramy pozostają otwarte.
 - **Punkty 7–10 — niewykonane.** Nie wykonywano bootstrap ani deploy; zasoby są tylko opisem w lokalnym szablonie.
 
-Ostatnie sprawdzenia 21 listopada 2026: **250 testów backendu, Ruff, pip check, kompilacja infrastruktury TypeScript i lokalny synth przeszły.** Ostatni wynik frontendu: 81 testów, TypeScript i build poprawne; nie ponawiano ich przy tej zmianie backendu. Newsy i filmy demo sprawdzono także w Chrome przy 320 i 1440 px. Po przygotowaniu konfiguracji wykonano pełne testy i build. Chrome sprawdzono przy 320/375/768/1440 px z osobnym originem API i załadowanymi widgetami TradingView. Szczegóły w [AWS_APP_PREPARATION.md](AWS_APP_PREPARATION.md).
+Ostatnie pełne sprawdzenia 22 listopada 2026: **267 testów backendu i 84 testy frontendu przeszły; Ruff, pip check, TypeScript frontendu i infrastruktury, build Vite oraz lokalny synth poprawne.** Test wyboru lokalnego magazynu jest odizolowany od rzeczywistego markera podglądu. Pozostają znane ostrzeżenie Starlette i informacja o flagach CDK; lint frontendu nadal nie jest skonfigurowany. Chrome: wyrównanie końców kolumn przy 1280/1440/1920 px oraz brak przewijania poziomego przy 320/375/1024 px sprawdzono z blokadą zewnętrznych żądań HTTPS. Testy brakujących i uszkodzonych obrazków przeszły; pełny wygląd widgetów zewnętrznych pozostaje osobnym QA.
 
-Następne proponowane zadanie: testy błędów i limitu 1 MiB czytnika S3, następnie walidacja modeli i podłączenie endpointów przez konfigurację. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient, dwa zgłoszenia moderate w zależnościach CDK oraz końcowe QA przed publikacją.
+Następne proponowane zadanie: dokończyć i sprawdzić adaptery modeli newsów i filmów oraz podłączyć odczyt S3 do endpointów przez konfigurację. Warunki danych live wskazane w punkcie 4 nadal pozostają do zamknięcia przed ich publikacją. Otwarte pozostają również brak konfiguracji ESLint, znane ostrzeżenie Starlette/TestClient, dwa zgłoszenia moderate w zależnościach CDK oraz końcowe QA przed publikacją.
 
 ## Kolejność prac
 
@@ -73,6 +73,9 @@ Wynik: jawna lista funkcji pierwszej publikacji. Bez rozpoczynania nowych moduł
 
 ### 4. Przygotowanie aplikacji do AWS — KOD GOTOWY, WARUNKI LIVE OTWARTE
 
+- [x] Przygotować osobny lokalny podgląd z jednorazowo pobranych prawdziwych nagłówków, źródeł i linków; zachować datę pobrania i oznaczenie archiwalnego podglądu. Pobieranie wyłącznie przez trwały licznik prób i po sprawdzeniu dostępnego budżetu. Nie pobierać pełnych artykułów. Czas przechowywania treści i obrazów uzgodnić z warunkami dostawców; nie zakładać bezterminowego cache.
+- [ ] Przed publikacją wyłączyć lokalny podgląd archiwalny i zastąpić syntetyczne karty w domyślnym widoku rzeczywistym, kontrolowanie odświeżanym cache. Demo pozostawić wyłącznie jako jawnie wybraną opcję developerską/testową; brak danych live ma pokazywać uczciwy stan niedostępności. Nie wyłączać produkcyjnego limitu wieku 24 h.
+
 - [x] Zaimplementować lokalnie trwały stan newsów, metadane aktualności, budżety prób i kontrolowane odświeżanie według NEWS_CACHE_DESIGN.md, z testami restartów i awarii. Wyniki: [NEWS_LOCAL_CACHE.md](NEWS_LOCAL_CACHE.md).
 - [x] Podłączyć endpoint i frontend newsów do trwałego magazynu; pokazać daty, oznaczenie demo i starszych danych oraz usuwać wygasłe karty. Odczyt API nie wywołuje dostawców.
 - [x] Przygotować lokalną logikę wspólnego cache i limitów filmów: trwałe rezerwacje każdego wyszukiwania, maksymalny wiek 24 h, odświeżanie oraz testy restartów, współbieżności i awarii. Wyniki: [VIDEO_LOCAL_CACHE.md](VIDEO_LOCAL_CACHE.md).
@@ -116,7 +119,7 @@ Wynik: znane założenia kosztowe. Cel £0–£5 miesięcznie nie jest gwarancj�
 - [x] Opisać w content-state-access.ts odczyt API: tylko s3:GetObject dla news/state.json i videos/state.json, bez zapisu, usuwania i listowania; sprawdzono lokalny szablon IAM.
 - [x] Dodać Boto3 do pyproject.toml i obu plików lock; wersje zgodne z lokalnym środowiskiem, pip check bez konfliktów.
 - [x] Dodać s3_reader.py: odczyt bajtów, limit 1 MiB, zamknięcie strumienia i wspólny wyjątek błędu. Pierwszy test sprawdza treść, argumenty i zamknięcie strumienia bez AWS.
-- [ ] Dodać testy awarii S3, braku pliku, błędu strumienia i przekroczenia limitu; zweryfikować czytnik przed integracją.
+- [x] Sprawdzić czytnik S3: 7 przypadków obejmuje poprawny odczyt, brak pliku, odmowę dostępu, granicę 1 MiB, deklarowane i faktyczne przekroczenie limitu oraz przerwany odczyt; zamknięcie strumienia i przyczyny błędów sprawdzone bez AWS.
 - [ ] Dodać adaptery modeli NewsState/VideoState z pełną walidacją oraz wybór magazynu lokalnego/S3 w endpointach; przekazać bucket i klucze z CDK. Obecne API nadal czyta lokalne pliki.
 - [ ] Przygotować warunkowy zapis S3 (ETag), trwałe rezerwacje prób i obsługę konfliktów bez resetowania budżetów; testy współbieżności i awarii.
 - [ ] Dodać osobne funkcje odświeżające i harmonogramy oraz ich ograniczone uprawnienia i bezpieczną konfigurację kluczy dostawców; odczyt publicznego API pozostaje bez wywołań dostawców.
@@ -205,3 +208,19 @@ Dodano osobny moduł backend-url.ts, połączenie w stacku i output BackendUrl. 
 ## Początek integracji stanu S3 — 21 listopada 2026
 
 Dodano bucket stanu, ograniczony odczyt roli API, Boto3 z przypiętymi zależnościami, czytnik bajtów S3 i pierwszy test bez AWS. Weryfikacja: 250 testów backendu, Ruff, pip check, kompilacja TypeScript i lokalny synth poprawne. Znane ostrzeżenie Starlette pozostaje. Nie oznacza to gotowego cache S3: modele, wybór magazynu, zapis warunkowy i harmonogramy nadal do wykonania. Nie wykonywano bootstrap/deploy ani zapytań do dostawców.
+
+## Kierunek lokalnego podglądu newsów — 22 listopada 2026
+
+Użytkownik zaproponował zastąpienie syntetycznych nagłówków lokalnym snapshotem prawdziwych wiadomości przed wdrożeniem. Dodano zadania podglądu i wyłączenia mocków w domyślnym widoku przed publikacją. To plan: nie pobrano danych dostawców, nie utworzono licznika live i nie zmieniono limitu świeżości. Bezterminowe przechowywanie treści nie zostało zatwierdzone; zakres i retencja wymagają sprawdzenia warunków dostawców.
+
+## Zapisany prawdziwy podgląd — 22 listopada 2026
+
+Użytkownik potwierdził brak innych wywołań kluczy Marketaux i Currents w ostatnich 24 h. Po testach wywołano jawnie news_preview z trwałym licznikiem news-live.json: Marketaux 1 próba, Currents 2 próby, wszystkie zakończone aktualizacją. Otrzymano 23 nagłówki ogólne i 9 mieszkaniowych. Marker lokalny włącza zapis w API; NEWS_STATE_PATH ma pierwszeństwo. UI pokazuje Saved preview / No automatic updates, datę, źródła i linki; strona nie pobiera ponownie danych dostawców. Zachowano maksymalny wiek 24 h, cooldown 6 h, blokady i rezerwację przed HTTP. Nie pobierano pełnych artykułów, nie włączono automatycznego odświeżania ani archiwum bezterminowego. Początkowy snapshot pobrano około 20:57 UTC i wygasa 23 listopada około 20:57 UTC. Plik i marker są ignorowane przez Git, nie wchodzą do paczki Lambda.
+
+Kod ręcznego podglądu pomija wyłącznie okno harmonogramu; pozostałe zabezpieczenia są wspólne z refresh-live. Zwykły harmonogram nie został zmieniony. Nie usuwać licznika w celu ponownego pobrania. Syntetyczne demo pozostaje opcją developerską, ale domyślny widok lokalny z aktywnym markerem pokazuje prawdziwy zapis. Przed wdrożeniem pozostają usunięcie lokalnego trybu podglądu z konfiguracji publikacji i uruchomienie produkcyjnego cache S3.
+
+## Podgląd UI, porządki i pełna weryfikacja — 22 listopada 2026
+
+Dodano pełniejsze syntetyczne demo jako jawną opcję developerską oraz zapisany podgląd prawdziwych newsów, który nie pobiera danych przy odwiedzinach. Karty mają lokalny obraz zastępczy przy braku lub błędzie zdjęcia wydawcy; prawdziwe tytuły, źródła i linki pozostają widoczne. Wyrównano dolne krawędzie głównej sekcji, elastycznych reklam demo i prawej kolumny na desktopie. Użytkownik następnie wyjaśnił, że zgłoszenie dotyczyło zdjęć; nie ograniczano dalej liczby artykułów. Podgląd pokazuje maksymalnie 6 kart finansowych, a zapis zawiera więcej nagłówków.
+
+Usunięto pięć zbędnych .gitkeep z niepustych katalogów oraz lokalny, nieśledzony główny node_modules (około 242 MB); frontend i infra zachowują własne zależności. Paczka Lambda, lokalne budżety i pliki konfiguracyjne pozostały. Weryfikacja: 267 testów backendu, 84 frontendu, Ruff, pip check, TypeScript, build i synth poprawne. Brak wdrożenia AWS; lokalna paczka Lambda nadal wymaga przebudowania po zakończeniu integracji.

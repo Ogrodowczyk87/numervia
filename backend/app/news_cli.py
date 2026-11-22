@@ -4,42 +4,27 @@ import argparse
 import asyncio
 import json
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
-from app.news_providers import NewsArticle
+from app.news_demo import demo_articles, populate_demo
 from app.news_refresh import FEEDS, fetch_live, read_feed, refresh_feed, slot_at
-from app.news_state import NewsSnapshot, NewsState, StoredFeed
+from app.news_state import NewsState
 from app.news_store import FileNewsStore
 
 DEFAULT_PATH = Path(__file__).resolve().parents[1] / ".local" / "news-demo.json"
 
 
-def demo_article(provider: str, feed: str) -> NewsArticle:
-    return NewsArticle(
-        title=f"Demo news: {feed} example — not a real headline",
-        url=f"https://example.com/{provider}/{feed}",
-        source="Numervia demo",
-        published_at="2026-11-14T00:00:00Z",
-        provider=provider,
-    )
-
-
 async def run(args: argparse.Namespace) -> None:
     store = FileNewsStore(args.path)
     now = datetime.now(UTC)
-    if args.command == "init-demo":
+    if args.command in ("init-demo", "preview-demo"):
+        if args.command == "preview-demo" and args.path.exists():
+            store.update(lambda state: populate_demo(state, now))
+            print("Demo preview updated; no provider requests were made.")
+            return
         state = NewsState(mode="demo")
-        for key in FEEDS:
-            provider, feed = key.split(":")
-            state.feeds[key] = StoredFeed(
-                snapshot=NewsSnapshot(
-                    articles=[demo_article(provider, feed)],
-                    fetched_at=now,
-                    fresh_until=now + timedelta(hours=6, minutes=5),
-                    serve_until=now + timedelta(hours=24),
-                )
-            )
+        populate_demo(state, now)
         store.initialize(state)
         print("Demo state created; no provider requests were made.")
     elif args.command == "init-live":
@@ -72,7 +57,7 @@ async def run(args: argparse.Namespace) -> None:
         else:
 
             async def fetch(provider, feed):
-                return [demo_article(provider, feed)]
+                return demo_articles(provider, feed, datetime.now(UTC))
 
             keys, mode = list(FEEDS), "demo"
         # Only the current schedule window; no catch-up requests.
@@ -112,6 +97,7 @@ def main() -> None:
     parser.add_argument("--path", type=Path, default=DEFAULT_PATH)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("init-demo")
+    commands.add_parser("preview-demo", help="Prepare synthetic UI preview without HTTP")
     commands.add_parser("refresh-demo")
     live_init = commands.add_parser("init-live")
     live_init.add_argument("--confirm-quota-ready", action="store_true")

@@ -16,6 +16,7 @@ export type NewsFeed = {
   serve_until: string;
   stale: boolean;
   demo: boolean;
+  preview?: boolean;
 };
 
 export async function getFinancialNews(signal: AbortSignal, feed: "overview" | "housing" = "overview"): Promise<NewsFeed> {

@@ -9,6 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import AwareDatetime, BaseModel
 
+from app.news_preview import LIVE_PATH, PREVIEW_MARKER
 from app.news_providers import Feed, NewsArticle
 from app.news_refresh import read_feed, slot_at
 from app.news_store import FileNewsStore, StateUnavailable
@@ -25,11 +26,14 @@ class NewsResponse(BaseModel):
     serve_until: AwareDatetime
     stale: bool
     demo: bool
+    preview: bool = False
 
 
 def get_store() -> FileNewsStore:
     configured = os.getenv("NEWS_STATE_PATH", "").strip()
-    return FileNewsStore(Path(configured) if configured else DEFAULT_PATH)
+    if configured:
+        return FileNewsStore(Path(configured))
+    return FileNewsStore(LIVE_PATH if PREVIEW_MARKER.is_file() else DEFAULT_PATH)
 
 
 def current_time() -> datetime:
@@ -65,4 +69,5 @@ def get_news(
             headers=headers,
         ) from error
     response.headers["Cache-Control"] = "no-store"
+    result["preview"] = PREVIEW_MARKER.is_file() and store.path.resolve() == LIVE_PATH.resolve()
     return result

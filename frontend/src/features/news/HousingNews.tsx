@@ -36,7 +36,7 @@ export default function HousingNews({ excludeUrls }: { excludeUrls: string[] }) 
   return (
     <section
       aria-labelledby="housing-news-heading"
-      className="flex min-w-0 flex-col px-4 pb-16 lg:h-0 lg:min-h-[30rem] lg:flex-1"
+      className="flex min-w-0 flex-col px-4 pb-16 lg:h-0 lg:min-h-[35rem] lg:flex-1"
     >
       <h2 id="housing-news-heading" className="shrink-0 text-2xl font-bold">Property & mortgages</h2>
       {(loading || error || available.length === 0) && (
@@ -46,7 +46,7 @@ export default function HousingNews({ excludeUrls }: { excludeUrls: string[] }) 
       )}
       {snapshot && <NewsMetadata snapshot={snapshot} stale={stale} />}
       <div ref={grid} className="mt-6 grid gap-4 @min-[32rem]:grid-cols-2 lg:min-h-0 lg:flex-1 lg:auto-rows-fr">
-        {available.slice(0, Math.min(visibleCount, Math.ceil(available.length / 2))).map((article) => <NewsCard key={article.url} article={article} compact />)}
+        {available.slice(0, Math.min(visibleCount, Math.ceil(available.length / 2))).map((article) => <NewsCard key={article.url} article={article} compact demo={snapshot?.demo} />)}
       </div>
     </section>
   );

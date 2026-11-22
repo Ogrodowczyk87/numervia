@@ -8,5 +8,6 @@ test("renders articles without images and tolerates an invalid date", async () =
   render(<FinancialNews />);
   await screen.findByRole("link", { name: /Markets update/ });
   expect(document.querySelector("img")).toBeNull();
+  expect(screen.getByRole("img", { name: "Article image unavailable" })).toBeVisible();
   expect(screen.getByText(/Date unavailable/)).toBeVisible();
 });

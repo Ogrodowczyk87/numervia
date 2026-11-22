@@ -1,7 +1,7 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
 
-from app.news_cli import demo_article
+from app.news_demo import demo_article
 from app.news_refresh import refresh_feed
 from app.news_state import NewsSnapshot, NewsState
 from app.news_store import FileNewsStore

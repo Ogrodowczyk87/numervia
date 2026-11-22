@@ -81,6 +81,7 @@ async def refresh_feed(
     *,
     mode: str = "demo",
     clock: Callable[[], datetime] | None = None,
+    manual: bool = False,
 ) -> RefreshResult:
     if key not in FEEDS:
         raise ValueError("Unknown feed")
@@ -99,8 +100,11 @@ async def refresh_feed(
         budget.attempts = [a for a in budget.attempts if a.at > now - DAY]
         count = len(budget.attempts)
         result = RefreshResult("skipped", count, count >= WARN_AT[provider])
+        # Explicit local preview can run outside the schedule window. All durable
+        # budget, cooldown, slot deduplication and provider block checks still apply.
         if scheduled_at != slot_at(scheduled_at) or not (
             scheduled_at <= now <= scheduled_at + TOLERANCE
+            or manual and mode == "live" and scheduled_at == slot_at(now)
         ):
             return result
         if budget.provider_disabled or (

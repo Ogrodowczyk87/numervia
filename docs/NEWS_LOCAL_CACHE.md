@@ -4,6 +4,26 @@ Implementacja z 14 listopada 2026. Warstwa lokalna z NEWS_CACHE_DESIGN.md jest p
 
 ## Uruchomienie demo
 
+## Zapisany podgląd prawdziwych nagłówków
+
+`python -m app.news_preview --allow-live --confirm-quota-ready` przygotowuje jednorazowy lokalny podgląd. Pierwsze utworzenie licznika wymaga potwierdzenia wolnego budżetu kont dostawców; nie uruchamiać z flagą potwierdzenia bez tej wiedzy. Klucze są odczytywane wyłącznie przez jawnie wywołane CLI ze środowiska lub backend/.env, nigdy przez startup API i nigdy nie są wypisywane.
+
+Stan i historia rezerwacji są w backend/.local/news-live.json. Nie tworzyć kolejnych liczników dla tych samych kluczy. CLI wykonuje najwyżej jedno żądanie na skonfigurowany zestaw (1 Marketaux + 2 Currents przy obu kluczach), bez paginacji i automatycznych ponowień. Rezerwacja jest zapisywana przed HTTP, zachowane są limity 80/200 w ostatnich 24 h, odstęp 6 h i blokady dostawców. Ręczne wywołanie może odbyć się poza pięciominutowym oknem harmonogramu; zwykłe refresh-live zachowuje dotychczasowy harmonogram.
+
+Po udanym pobraniu marker backend/.local/news-preview.enabled włącza ten plik w lokalnym API, jeśli nie ustawiono NEWS_STATE_PATH. Frontend pokazuje „Saved preview · No automatic updates.”, źródła i linki. Odświeżenie przeglądarki nie pobiera danych dostawców. Nadal obowiązuje maksymalny wiek danych 24 h; starsze wiadomości nie są podawane. Nie jest to bezterminowe archiwum ani automatyczne odświeżanie. Nie usuwaj news-live.json w celu resetowania budżetów. Wyłączenie podglądu wymaga usunięcia tylko markera; licznik pozostaje.
+
+Currents opisuje krótkotrwały cache operacyjny, a nie bezterminowe archiwum: https://currentsapi.services/en/faq. Lokalny podgląd nie potwierdza zakresu praw do publicznej republiki i zdjęć; pozostaje to osobnym warunkiem publikacji w roadmapie.
+
+## Syntetyczne demo
+
+Pełniejszy podgląd lokalnego interfejsu (6 kart finansowych i 4 przykłady mieszkaniowe w danych):
+
+```sh
+python -m app.news_cli preview-demo
+```
+
+Polecenie tworzy demo, jeśli brakuje pliku, albo aktualizuje jego syntetyczne snapshoty na kolejne 24 h. Odmawia zmiany stanu live, zachowuje istniejące liczniki i rezerwacje oraz nie wykonuje HTTP. Można je wywołać o dowolnej porze do podglądu UI; nie zmienia harmonogramu ani limitów odświeżania live. Karty demo mają lokalne ilustracje SVG, wyraźne oznaczenie i nie zawierają linków do fikcyjnych artykułów. Po wygaśnięciu danych uruchomić polecenie ponownie. To podgląd, nie prawdziwe wiadomości.
+
 Z katalogu `backend`, z aktywnym `.venv`:
 
 ```sh

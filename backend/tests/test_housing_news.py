@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 
-from app.news_refresh import fetch_live
+from app.news.refresh import fetch_live
 
 
 def test_housing_news(news_provider, currents_article, provider_response):

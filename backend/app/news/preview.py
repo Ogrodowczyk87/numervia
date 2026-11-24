@@ -9,11 +9,11 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-from app.news_refresh import FEEDS, fetch_live, refresh_feed, slot_at
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.refresh import FEEDS, fetch_live, refresh_feed, slot_at
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
-BACKEND_PATH = Path(__file__).resolve().parents[1]
+BACKEND_PATH = Path(__file__).resolve().parents[2]
 LIVE_PATH = BACKEND_PATH / ".local" / "news-live.json"
 PREVIEW_MARKER = BACKEND_PATH / ".local" / "news-preview.enabled"
 

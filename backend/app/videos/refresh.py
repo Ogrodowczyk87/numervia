@@ -10,7 +10,8 @@ from uuid import uuid4
 
 import httpx
 
-from app.video_state import (
+from app.content.readers import VideoReader
+from app.videos.state import (
     CATEGORIES,
     Category,
     SavedCategory,
@@ -20,7 +21,7 @@ from app.video_state import (
     VideoSnapshot,
     VideoState,
 )
-from app.video_store import FileVideoStore
+from app.videos.store import FileVideoStore
 
 INTERVAL = timedelta(hours=6)
 DAY = timedelta(hours=24)
@@ -228,7 +229,7 @@ async def refresh_category(
     return RefreshResult(status, result.attempts, result.budget_warning)
 
 
-def read_videos(store: FileVideoStore, now: datetime) -> VideoFeed:
+def read_videos(store: VideoReader, now: datetime) -> VideoFeed:
     now = utc(now)
     state = store.read()
     snapshots = [

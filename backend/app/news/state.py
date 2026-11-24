@@ -9,7 +9,7 @@ from pydantic import (
     model_validator,
 )
 
-from app.news_providers import Feed, NewsArticle, Provider
+from app.news.providers import Feed, NewsArticle, Provider
 
 
 class NewsSnapshot(BaseModel):

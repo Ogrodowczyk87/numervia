@@ -2,7 +2,7 @@ import asyncio
 from datetime import timedelta
 from unittest.mock import AsyncMock
 
-from app.video_refresh import refresh_category
+from app.videos.refresh import refresh_category
 
 
 def test_videos_fallback(video_client, saved_videos):

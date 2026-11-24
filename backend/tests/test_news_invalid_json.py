@@ -3,7 +3,7 @@ import asyncio
 import httpx
 import pytest
 
-from app.news_refresh import fetch_live
+from app.news.refresh import fetch_live
 
 
 def test_news_invalid_json(news_provider):

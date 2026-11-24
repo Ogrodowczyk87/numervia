@@ -6,7 +6,7 @@ Implementacja z 14 listopada 2026. Warstwa lokalna z NEWS_CACHE_DESIGN.md jest p
 
 ## Zapisany podgląd prawdziwych nagłówków
 
-`python -m app.news_preview --allow-live --confirm-quota-ready` przygotowuje jednorazowy lokalny podgląd. Pierwsze utworzenie licznika wymaga potwierdzenia wolnego budżetu kont dostawców; nie uruchamiać z flagą potwierdzenia bez tej wiedzy. Klucze są odczytywane wyłącznie przez jawnie wywołane CLI ze środowiska lub backend/.env, nigdy przez startup API i nigdy nie są wypisywane.
+`python -m app.news.preview --allow-live --confirm-quota-ready` przygotowuje jednorazowy lokalny podgląd. Pierwsze utworzenie licznika wymaga potwierdzenia wolnego budżetu kont dostawców; nie uruchamiać z flagą potwierdzenia bez tej wiedzy. Klucze są odczytywane wyłącznie przez jawnie wywołane CLI ze środowiska lub backend/.env, nigdy przez startup API i nigdy nie są wypisywane.
 
 Stan i historia rezerwacji są w backend/.local/news-live.json. Nie tworzyć kolejnych liczników dla tych samych kluczy. CLI wykonuje najwyżej jedno żądanie na skonfigurowany zestaw (1 Marketaux + 2 Currents przy obu kluczach), bez paginacji i automatycznych ponowień. Rezerwacja jest zapisywana przed HTTP, zachowane są limity 80/200 w ostatnich 24 h, odstęp 6 h i blokady dostawców. Ręczne wywołanie może odbyć się poza pięciominutowym oknem harmonogramu; zwykłe refresh-live zachowuje dotychczasowy harmonogram.
 
@@ -19,7 +19,7 @@ Currents opisuje krótkotrwały cache operacyjny, a nie bezterminowe archiwum: h
 Pełniejszy podgląd lokalnego interfejsu (6 kart finansowych i 4 przykłady mieszkaniowe w danych):
 
 ```sh
-python -m app.news_cli preview-demo
+python -m app.news.cli preview-demo
 ```
 
 Polecenie tworzy demo, jeśli brakuje pliku, albo aktualizuje jego syntetyczne snapshoty na kolejne 24 h. Odmawia zmiany stanu live, zachowuje istniejące liczniki i rezerwacje oraz nie wykonuje HTTP. Można je wywołać o dowolnej porze do podglądu UI; nie zmienia harmonogramu ani limitów odświeżania live. Karty demo mają lokalne ilustracje SVG, wyraźne oznaczenie i nie zawierają linków do fikcyjnych artykułów. Po wygaśnięciu danych uruchomić polecenie ponownie. To podgląd, nie prawdziwe wiadomości.
@@ -27,10 +27,10 @@ Polecenie tworzy demo, jeśli brakuje pliku, albo aktualizuje jego syntetyczne s
 Z katalogu `backend`, z aktywnym `.venv`:
 
 ```sh
-python -m app.news_cli init-demo
-python -m app.news_cli read
-python -m app.news_cli read --feed housing
-python -m app.news_cli refresh-demo
+python -m app.news.cli init-demo
+python -m app.news.cli read
+python -m app.news.cli read --feed housing
+python -m app.news.cli refresh-demo
 ```
 
 Demo używa syntetycznych nagłówków i nie wykonuje połączeń sieciowych. Domyślny plik `backend/.local/news-demo.json` oraz plik blokady są ignorowane przez Git. Demo zostało utworzone i odczytane podczas sprawdzenia implementacji; ponowne `init-demo` odmówi nadpisania istniejącego stanu.
@@ -40,16 +40,16 @@ Odświeżanie dopuszcza bieżące okno 00:00, 06:00, 12:00 lub 18:00 UTC i najwy
 Osobna ścieżka pliku, gdy potrzebne jest nowe niezależne demo:
 
 ```sh
-python -m app.news_cli --path .local/another-demo.json init-demo
-python -m app.news_cli --path .local/another-demo.json read
+python -m app.news.cli --path .local/another-demo.json init-demo
+python -m app.news.cli --path .local/another-demo.json read
 ```
 
 ## Co implementują moduły
 
-- `news_state.py`: walidowany format wersji 1, trzy dozwolone zestawy, świadome strefy czasowe, metadane i osobne budżety dostawców.
-- `news_store.py`: zapis JSON do pliku tymczasowego, fsync i atomowa zamiana. Osobny plik blokady flock chroni całą operację odczyt–zmiana–zapis między procesami lokalnymi. Maksymalny rozmiar stanu: 1 MiB.
-- `news_refresh.py`: trwała rezerwacja przed HTTP, deduplikacja okien, osobne limity 80/200 w kroczącym oknie 24 h, ostrzeżenia 60/150, zachowanie rezerwacji po timeout/przerwaniu. Zapis wyniku scala aktualny stan i sprawdza identyfikator rezerwacji, więc starszy wynik nie nadpisuje nowszego.
-- `news_cli.py`: jawne tworzenie stanu, odczyt i odświeżanie. Tryby demo/live mają oddzielny stan; nie można użyć magazynu demo jako live.
+- `news/state.py`: walidowany format wersji 1, trzy dozwolone zestawy, świadome strefy czasowe, metadane i osobne budżety dostawców.
+- `news/store.py`: zapis JSON do pliku tymczasowego, fsync i atomowa zamiana. Osobny plik blokady flock chroni całą operację odczyt–zmiana–zapis między procesami lokalnymi. Maksymalny rozmiar stanu: 1 MiB.
+- `news/refresh.py`: trwała rezerwacja przed HTTP, deduplikacja okien, osobne limity 80/200 w kroczącym oknie 24 h, ostrzeżenia 60/150, zachowanie rezerwacji po timeout/przerwaniu. Zapis wyniku scala aktualny stan i sprawdza identyfikator rezerwacji, więc starszy wynik nie nadpisuje nowszego.
+- `news/cli.py`: jawne tworzenie stanu, odczyt i odświeżanie. Tryby demo/live mają oddzielny stan; nie można użyć magazynu demo jako live.
 
 Uszkodzony, brakujący albo nieczytelny stan zatrzymuje odświeżanie. Nie tworzymy automatycznie nowego budżetu. Awaria zapisu rezerwacji oznacza zero wywołań dostawcy; awaria po skutecznej rezerwacji nie zwraca jednostki. Atomowość zamiany nie zastępuje blokady: potrzebne są obie rzeczy.
 

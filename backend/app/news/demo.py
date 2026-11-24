@@ -2,8 +2,8 @@
 
 from datetime import UTC, datetime, timedelta
 
-from app.news_providers import Feed, NewsArticle, Provider
-from app.news_state import NewsSnapshot, NewsState, StoredFeed
+from app.news.providers import Feed, NewsArticle, Provider
+from app.news.state import NewsSnapshot, NewsState, StoredFeed
 
 OVERVIEW = (
     "Market briefing: how investors compare growth and income",

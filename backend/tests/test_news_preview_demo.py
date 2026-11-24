@@ -5,10 +5,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.news_cli import run
-from app.news_refresh import read_feed
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.cli import run
+from app.news.refresh import read_feed
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
 
 @pytest.mark.parametrize("existing_mode", [None, "demo", "live"])

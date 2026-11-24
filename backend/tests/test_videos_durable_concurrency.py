@@ -1,8 +1,8 @@
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
 
-from app.video_refresh import refresh_category
-from app.video_store import FileVideoStore
+from app.videos.refresh import refresh_category
+from app.videos.store import FileVideoStore
 
 
 def _refresh(arguments):

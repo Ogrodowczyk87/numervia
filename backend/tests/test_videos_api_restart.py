@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.video_store import FileVideoStore
-from app.videos import current_time, get_store, router
+from app.videos.routes import current_time, get_store, router
+from app.videos.store import FileVideoStore
 
 
 def test_recreated_video_api_keeps_saved_state_and_private_budget(

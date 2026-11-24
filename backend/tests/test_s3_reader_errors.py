@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 from botocore.exceptions import ClientError
 
-from app.s3_reader import S3StateUnavailable, read_s3_object
+from app.content.s3_reader import S3StateUnavailable, read_s3_object
 
 
 @pytest.mark.parametrize("error_code", ["NoSuchKey", "AccessDenied"])

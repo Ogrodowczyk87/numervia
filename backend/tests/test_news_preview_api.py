@@ -1,15 +1,15 @@
 def test_preview_api_reads_saved_headlines_without_provider_calls(
     news_client, saved_news, news_provider, monkeypatch, tmp_path
 ):
-    from app.news_demo import demo_articles
+    from app.news.demo import demo_articles
 
     store, now, save = saved_news
     save(articles=demo_articles("marketaux", "overview", now))
     store.update(lambda state: setattr(state, "mode", "live"))
     marker = tmp_path / "preview.enabled"
     marker.write_text("enabled")
-    monkeypatch.setattr("app.news.LIVE_PATH", store.path)
-    monkeypatch.setattr("app.news.PREVIEW_MARKER", marker)
+    monkeypatch.setattr("app.news.routes.LIVE_PATH", store.path)
+    monkeypatch.setattr("app.news.routes.PREVIEW_MARKER", marker)
     before = store.path.read_bytes()
 
     for _ in range(3):

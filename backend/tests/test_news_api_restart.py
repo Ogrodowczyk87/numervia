@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.news import current_time, get_store, router
-from app.news_store import FileNewsStore
+from app.news.routes import current_time, get_store, router
+from app.news.store import FileNewsStore
 
 
 def test_recreated_api_reads_same_state_without_provider_requests(

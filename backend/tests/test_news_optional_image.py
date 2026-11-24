@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from app.news_refresh import fetch_live
+from app.news.refresh import fetch_live
 
 
 @pytest.mark.parametrize("image", [None, "", "missing"])

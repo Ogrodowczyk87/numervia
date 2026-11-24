@@ -3,7 +3,7 @@ from datetime import timedelta
 import pytest
 from pydantic import ValidationError
 
-from app.video_state import VideoSnapshot
+from app.videos.state import VideoSnapshot
 
 
 @pytest.mark.parametrize(

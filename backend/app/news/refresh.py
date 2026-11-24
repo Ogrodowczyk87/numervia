@@ -9,7 +9,8 @@ from uuid import uuid4
 
 import httpx
 
-from app.news_providers import (
+from app.content.readers import NewsReader
+from app.news.providers import (
     Feed,
     NewsArticle,
     Provider,
@@ -17,8 +18,8 @@ from app.news_providers import (
     parse_articles,
     request_news,
 )
-from app.news_state import Attempt, FeedKey, NewsSnapshot, NewsState, StoredFeed
-from app.news_store import FileNewsStore
+from app.news.state import Attempt, FeedKey, NewsSnapshot, NewsState, StoredFeed
+from app.news.store import FileNewsStore
 
 INTERVAL = timedelta(hours=6)
 DAY = timedelta(hours=24)
@@ -198,7 +199,7 @@ async def refresh_feed(
     )
 
 
-def read_feed(store: FileNewsStore, feed: Feed, now: datetime) -> dict:
+def read_feed(store: NewsReader, feed: Feed, now: datetime) -> dict:
     """Pure read: no HTTP, credentials, budget changes or implicit initialization."""
     now = utc(now)
     if feed not in ("overview", "housing"):

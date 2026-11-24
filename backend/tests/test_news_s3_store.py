@@ -5,9 +5,9 @@ from unittest.mock import Mock
 import pytest
 from botocore.exceptions import ClientError
 
-from app.news_s3_store import S3NewsStore
-from app.news_state import NewsState
-from app.news_store import StateUnavailable
+from app.news.s3_store import S3NewsStore
+from app.news.state import NewsState
+from app.news.store import StateUnavailable
 
 
 @pytest.mark.parametrize(

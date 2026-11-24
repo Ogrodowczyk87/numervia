@@ -3,10 +3,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.news_demo import demo_articles
-from app.news_preview import prepare_preview
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.demo import demo_articles
+from app.news.preview import prepare_preview
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
 
 @pytest.mark.parametrize("scenario", ["first", "unconfirmed", "no_permission", "demo", "repeat"])

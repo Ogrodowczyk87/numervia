@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.video_refresh import refresh_category
+from app.videos.refresh import refresh_category
 
 
 @pytest.mark.parametrize("seconds", [-1, 301, 3600, 21600])

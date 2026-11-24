@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 
-from app.news_refresh import refresh_feed
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.refresh import refresh_feed
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
 
 @pytest.mark.parametrize("status", [301, 401, 403, 402, 429, 500])

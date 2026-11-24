@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 
-from app.news_refresh import refresh_feed
+from app.news.refresh import refresh_feed
 
 
 @pytest.mark.parametrize("provider", ["marketaux", "currents"])

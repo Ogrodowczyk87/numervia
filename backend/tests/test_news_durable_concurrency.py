@@ -2,9 +2,9 @@ import asyncio
 from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 
-from app.news_refresh import refresh_feed
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.refresh import refresh_feed
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
 
 def _refresh(path):

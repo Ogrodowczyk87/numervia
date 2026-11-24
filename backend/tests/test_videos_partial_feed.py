@@ -1,4 +1,4 @@
-from app.video_cli import demo_video
+from app.videos.cli import demo_video
 
 
 def test_saved_video_feed_deduplicates_and_keeps_available_categories(

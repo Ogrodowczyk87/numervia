@@ -6,9 +6,9 @@ from unittest.mock import Mock
 import pytest
 from botocore.exceptions import ClientError
 
-from app.video_s3_store import S3VideoStore
-from app.video_state import SavedCategory, VideoBudget, VideoState
-from app.video_store import VideoStateUnavailable
+from app.videos.s3_store import S3VideoStore
+from app.videos.state import SavedCategory, VideoBudget, VideoState
+from app.videos.store import VideoStateUnavailable
 
 
 @pytest.mark.parametrize(

@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 
-from app.video_refresh import refresh_category
+from app.videos.refresh import refresh_category
 
 
 @pytest.mark.parametrize(

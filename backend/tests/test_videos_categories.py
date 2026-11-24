@@ -1,6 +1,6 @@
 import asyncio
 
-from app.video_refresh import fetch_live
+from app.videos.refresh import fetch_live
 
 
 def test_videos_categories(video_provider, provider_response, saved_videos):

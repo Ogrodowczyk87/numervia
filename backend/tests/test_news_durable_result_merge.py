@@ -1,10 +1,10 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
 
-from app.news_demo import demo_article
-from app.news_refresh import refresh_feed
-from app.news_state import NewsSnapshot, NewsState
-from app.news_store import FileNewsStore
+from app.news.demo import demo_article
+from app.news.refresh import refresh_feed
+from app.news.state import NewsSnapshot, NewsState
+from app.news.store import FileNewsStore
 
 
 def test_old_result_cannot_overwrite_newer_reservation(tmp_path):

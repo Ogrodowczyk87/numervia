@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from app.video_refresh import fetch_live
+from app.videos.refresh import fetch_live
 
 
 @pytest.mark.parametrize("payload", [{}, {"items": None}, {"items": [{}]}])

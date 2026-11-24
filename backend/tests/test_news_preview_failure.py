@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 
-from app.news_preview import prepare_preview
-from app.news_store import FileNewsStore
+from app.news.preview import prepare_preview
+from app.news.store import FileNewsStore
 
 
 def test_failed_preview_preserves_reservation_and_does_not_activate(tmp_path):

@@ -7,7 +7,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TypeVar
 
-from app.video_state import VideoState
+from app.videos.state import VideoState
 
 MAX_STATE_BYTES = 1024 * 1024
 T = TypeVar("T")

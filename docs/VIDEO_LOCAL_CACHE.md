@@ -17,9 +17,9 @@ Nie pobieramy plików wideo. Zapisujemy tylko identyfikatory, tytuły, kanały, 
 W katalogu `backend`, z aktywnym `.venv`:
 
 ```sh
-python -m app.video_cli init-demo
-python -m app.video_cli read
-python -m app.video_cli refresh-demo
+python -m app.videos.cli init-demo
+python -m app.videos.cli read
+python -m app.videos.cli refresh-demo
 python -m uvicorn app.main:app --reload
 ```
 
@@ -27,7 +27,7 @@ Demo zostało już utworzone podczas sprawdzania tego zadania. `init-demo` słu�
 
 Frontend uruchamia się jak dotychczas przez `npm run dev`. Bez klucza API newsy i filmy demo działają z istniejących plików. Start aplikacji ani wejście na stronę nie tworzy stanu automatycznie.
 
-Inny niezależny plik demo można utworzyć przez `python -m app.video_cli --path .local/another-video-demo.json init-demo`. Aby API go odczytywało, przekaż zmienną procesu: `VIDEOS_STATE_PATH=.local/another-video-demo.json python -m uvicorn app.main:app --reload`. API nie odczytuje kluczy z `.env`.
+Inny niezależny plik demo można utworzyć przez `python -m app.videos.cli --path .local/another-video-demo.json init-demo`. Aby API go odczytywało, przekaż zmienną procesu: `VIDEOS_STATE_PATH=.local/another-video-demo.json python -m uvicorn app.main:app --reload`. API nie odczytuje kluczy z `.env`.
 
 ## Limit darmowego API i konfiguracja live
 
@@ -48,7 +48,7 @@ Zależność sprawdzana przez kod: budżet × koszt wyszukiwania nie przekracza 
 
 Dla potwierdzonego projektu wybrano daily_quota=100, cost_per_search=1 i request_budget=80. Te wartości przechodzą walidację; zapisanie ich w osobnym stanie live pozostaje do wykonania. Kod obsługuje też pule wyrażone inną liczbą jednostek i kosztem; nie zakłada historycznego kosztu wyszukiwania.
 
-`refresh-live` wymaga `--allow-live`, istniejącego stanu live z budżetem i datą jego potwierdzenia oraz `YOUTUBE_API_KEY` w środowisku procesu. Nie czyta klucza z `.env`. Sam endpoint API nigdy nie uruchamia tej ścieżki. `python -m app.video_cli init-live --help` pokazuje składnię bez tworzenia stanu i bez HTTP.
+`refresh-live` wymaga `--allow-live`, istniejącego stanu live z budżetem i datą jego potwierdzenia oraz `YOUTUBE_API_KEY` w środowisku procesu. Nie czyta klucza z `.env`. Sam endpoint API nigdy nie uruchamia tej ścieżki. `python -m app.videos.cli init-live --help` pokazuje składnię bez tworzenia stanu i bez HTTP.
 
 Potwierdzono limit konta, lecz nie utworzono jego stanu live. Zrzut pokazuje 9 już wykonanych wyszukiwań; nie potwierdza pustego licznika ani pełnej historii ostatnich 24 h. Zgodnie z przyjętą procedurą pierwszą inicjalizację wykonać dopiero po potwierdzeniu odnowienia limitu lub po 24 h bez innych wywołań klucza. W tym kroku zweryfikowano model VideoBudget dla wartości 100/1/80 bez tworzenia stanu i bez HTTP. Inna aplikacja używająca tego samego projektu może zużywać wspólną pulę; wewnętrzny licznik obejmuje wyłącznie wywołania wykonane przez ten mechanizm.
 
@@ -56,11 +56,11 @@ Potwierdzono limit konta, lecz nie utworzono jego stanu live. Zrzut pokazuje 9 j
 
 Status pierwszego uruchomienia na 14 listopada 2026: użytkownik nie potwierdził resetu limitu ani pełnych 24 godzin bez wywołań. Nie utworzono pliku live i nie uruchomiono pobierania. Powrót do inicjalizacji wymaga potwierdzenia tego warunku; nie liczymy 24 godzin od tej rozmowy, jeśli w międzyczasie wystąpią kolejne wywołania projektu.
 
-- `video_state.py`: wersjonowany format danych, terminy, rezerwacje i jawny budżet.
-- `video_store.py`: atomowa zamiana pliku po fsync, osobny flock synchronizujący lokalne procesy; maksymalnie 1 MiB. Brak/uszkodzenie pliku nie tworzy nowego licznika. Ponowna inicjalizacja istniejącego stanu jest zabroniona.
-- `video_refresh.py`: zapisuje jedną rezerwację przed każdym wyszukiwaniem. Błąd zapisu oznacza zero HTTP; timeout, anulowanie i błąd dostawcy nie zwracają próby. Zapis wyniku scala aktualny stan i sprawdza rezerwację, więc stary wynik nie nadpisuje nowszego. Brak automatycznych ponowień i przekierowań.
-- `video_cli.py`: jawne tworzenie, odczyt i odświeżanie demo/live.
-- `videos.py`: wyłącznie odczyt; odpowiedź ma videos, updated_at, fresh_until, serve_until, stale i demo. Nie ujawnia liczników ani błędów dostawcy. Cache-Control: no-store; brak danych daje 503 i Retry-After do kolejnego planowanego okna, bez gwarancji powodzenia wtedy.
+- `videos/state.py`: wersjonowany format danych, terminy, rezerwacje i jawny budżet.
+- `videos/store.py`: atomowa zamiana pliku po fsync, osobny flock synchronizujący lokalne procesy; maksymalnie 1 MiB. Brak/uszkodzenie pliku nie tworzy nowego licznika. Ponowna inicjalizacja istniejącego stanu jest zabroniona.
+- `videos/refresh.py`: zapisuje jedną rezerwację przed każdym wyszukiwaniem. Błąd zapisu oznacza zero HTTP; timeout, anulowanie i błąd dostawcy nie zwracają próby. Zapis wyniku scala aktualny stan i sprawdza rezerwację, więc stary wynik nie nadpisuje nowszego. Brak automatycznych ponowień i przekierowań.
+- `videos/cli.py`: jawne tworzenie, odczyt i odświeżanie demo/live.
+- `videos/routes.py`: wyłącznie odczyt; odpowiedź ma videos, updated_at, fresh_until, serve_until, stale i demo. Nie ujawnia liczników ani błędów dostawcy. Cache-Control: no-store; brak danych daje 503 i Retry-After do kolejnego planowanego okna, bez gwarancji powodzenia wtedy.
 
 Wyczerpanie lokalnego budżetu blokuje następne wyszukiwanie do wyjścia odpowiednich prób z kroczącego okna 24 h. Ostrzeżenie pojawia się przy 80% budżetu. Konfiguracja i licznik przeżywają restart; nie usuwać pliku live ani rezerwacji, żeby obchodzić blokadę.
 

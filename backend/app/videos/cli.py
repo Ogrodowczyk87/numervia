@@ -7,8 +7,8 @@ import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from app.video_refresh import fetch_live, read_videos, refresh_category, slot_at
-from app.video_state import (
+from app.videos.refresh import fetch_live, read_videos, refresh_category, slot_at
+from app.videos.state import (
     CATEGORIES,
     SavedCategory,
     Video,
@@ -16,9 +16,9 @@ from app.video_state import (
     VideoSnapshot,
     VideoState,
 )
-from app.video_store import FileVideoStore
+from app.videos.store import FileVideoStore
 
-DEFAULT_PATH = Path(__file__).resolve().parents[1] / ".local" / "videos-demo.json"
+DEFAULT_PATH = Path(__file__).resolve().parents[2] / ".local" / "videos-demo.json"
 
 
 def demo_video(category: str, now: datetime) -> Video:

@@ -3,14 +3,14 @@ from datetime import timedelta
 
 import pytest
 
-from app.news_refresh import refresh_feed
+from app.news.refresh import refresh_feed
 
 
 @pytest.mark.parametrize("header,hours", [("43200", 12), ("bad", 6)])
 def test_currents_retry_after(
     news_provider, provider_response, saved_news, header, hours
 ):
-    from app.news_refresh import fetch_live
+    from app.news.refresh import fetch_live
 
     store, now, _ = saved_news
     response = provider_response({}, 429)

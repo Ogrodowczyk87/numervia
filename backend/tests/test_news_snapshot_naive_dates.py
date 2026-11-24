@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
-from app.news_state import NewsSnapshot
+from app.news.state import NewsSnapshot
 
 
 def test_snapshot_requires_timezone():

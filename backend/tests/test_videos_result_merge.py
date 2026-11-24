@@ -1,6 +1,6 @@
 import asyncio
 
-from app.video_refresh import refresh_category
+from app.videos.refresh import refresh_category
 
 
 def test_old_video_result_never_overwrites_newer_writer(saved_videos):

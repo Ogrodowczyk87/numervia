@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from app.video_state import VideoState
-from app.video_store import FileVideoStore, VideoStateUnavailable
+from app.videos.state import VideoState
+from app.videos.store import FileVideoStore, VideoStateUnavailable
 
 
 @pytest.mark.parametrize(
@@ -23,7 +23,7 @@ def test_video_store_rejects_reset_and_corrupt_state(
         def fail(*args):
             raise OSError("failure")
 
-        monkeypatch.setattr("app.video_store.os.replace", fail)
+        monkeypatch.setattr("app.videos.store.os.replace", fail)
         with pytest.raises(VideoStateUnavailable):
             store.update(lambda state: None)
         assert store.path.read_bytes() == original

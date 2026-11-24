@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.video_refresh import refresh_category
-from app.video_state import VideoAttempt, VideoBudget
+from app.videos.refresh import refresh_category
+from app.videos.state import VideoAttempt, VideoBudget
 
 
 @pytest.mark.parametrize("cost,daily", [(1, 100), (100, 10000)])

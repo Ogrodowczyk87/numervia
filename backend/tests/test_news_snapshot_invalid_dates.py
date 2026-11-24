@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
-from app.news_state import NewsSnapshot
+from app.news.state import NewsSnapshot
 
 
 @pytest.mark.parametrize(

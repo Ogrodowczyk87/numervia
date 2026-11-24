@@ -1,8 +1,8 @@
 import asyncio
 from unittest.mock import AsyncMock
 
-from app.news_refresh import refresh_feed
-from app.news_state import Attempt
+from app.news.refresh import refresh_feed
+from app.news.state import Attempt
 
 
 def test_housing_shared_budget(saved_news):

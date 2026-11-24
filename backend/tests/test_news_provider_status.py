@@ -3,7 +3,7 @@ import asyncio
 import httpx
 import pytest
 
-from app.news_refresh import fetch_live
+from app.news.refresh import fetch_live
 
 
 @pytest.mark.parametrize("status", [301, 401, 402, 403, 429, 500])

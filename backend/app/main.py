@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.finance.mortgage import simulate_mortgage
 from app.models import MortgageSimulationRequest, MortgageSimulationResponse
-from app.news import router as news_router
-from app.videos import router as videos_router
+from app.news.routes import router as news_router
+from app.videos.routes import router as videos_router
 
 
 def allowed_origins() -> list[str]:

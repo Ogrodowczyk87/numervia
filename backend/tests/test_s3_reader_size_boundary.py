@@ -1,7 +1,7 @@
 from io import BytesIO
 from unittest.mock import Mock
 
-from app.s3_reader import read_s3_object
+from app.content.s3_reader import read_s3_object
 
 
 def test_accepts_exactly_one_mib_and_closes_body():

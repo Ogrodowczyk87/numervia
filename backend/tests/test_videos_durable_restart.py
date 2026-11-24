@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.video_refresh import refresh_category
-from app.video_store import FileVideoStore
+from app.videos.refresh import refresh_category
+from app.videos.store import FileVideoStore
 
 
 @pytest.mark.parametrize("error", [None, TimeoutError(), asyncio.CancelledError()])

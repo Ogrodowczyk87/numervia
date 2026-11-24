@@ -1,6 +1,6 @@
 import pytest
 
-from app.news_providers import is_housing_headline
+from app.news.providers import is_housing_headline
 
 
 @pytest.mark.parametrize(

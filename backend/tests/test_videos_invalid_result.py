@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.video_cli import demo_video
-from app.video_refresh import refresh_category
+from app.videos.cli import demo_video
+from app.videos.refresh import refresh_category
 
 
 @pytest.mark.parametrize("invalid", ["wrong_category", "too_many", "bad_payload"])

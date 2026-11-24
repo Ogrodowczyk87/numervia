@@ -88,7 +88,7 @@ Content files are stored under `backend/.local/` and are ignored by Git. A fresh
 From `backend`, with `.venv` active:
 
 ```sh
-python -m app.news_cli preview-demo
+python -m app.news.cli preview-demo
 ```
 
 This creates or updates synthetic news snapshots without network requests. Demo cards are labelled and do not link to fictional publisher articles. Snapshots expire after 24 hours; run the command again when needed.
@@ -114,7 +114,7 @@ See [news storage and preview instructions](docs/NEWS_LOCAL_CACHE.md) for config
 For the first initialization, from `backend` with `.venv` active:
 
 ```sh
-python -m app.video_cli init-demo
+python -m app.videos.cli init-demo
 ```
 
 This refuses to overwrite an existing state file. Demo videos are synthetic previews without an active player. Video snapshots also expire after 24 hours. Refresh commands follow a controlled schedule and may return `skipped` outside their refresh window.
@@ -201,8 +201,11 @@ Synthesis generates local CloudFormation templates and stages assets. It does no
 
 ```text
 backend/
+  app/               FastAPI entry point, API models, and Lambda handler
   app/finance/       Mortgage calculation engine
-  app/               FastAPI, content stores, refresh logic, and Lambda handler
+  app/content/       Shared storage configuration, reader interfaces, and S3 reader
+  app/news/          News routes, models, stores, providers, previews, and CLI
+  app/videos/        Video routes, models, stores, refresh logic, and CLI
   tests/             Backend tests
 frontend/
   src/               React pages, components, and feature modules
@@ -216,7 +219,7 @@ docs/               Roadmap, implementation notes, and cost assumptions
 
 ## Next milestones
 
-1. Complete S3 read adapters and select local or S3 storage through configuration.
+1. Connect the existing S3 read adapters to endpoints through storage configuration.
 2. Implement conditional state updates and scheduled refreshes with durable request budgets.
 3. Automate Lambda packaging and finish deployment configuration and checks.
 4. Review costs, permissions, and content-provider conditions, then deploy and verify the first public release.

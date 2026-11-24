@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from app.news_refresh import retry_after
+from app.news.refresh import retry_after
 
 
 @pytest.mark.parametrize(

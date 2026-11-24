@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from app.news_state import NewsSnapshot
+from app.news.state import NewsSnapshot
 
 
 def test_news_snapshot_survives_json_serialization():

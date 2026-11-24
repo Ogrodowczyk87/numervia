@@ -1,4 +1,4 @@
-from app.news_providers import NewsArticle
+from app.news.providers import NewsArticle
 
 
 def test_housing_cache_isolation(news_client, saved_news, news_article):

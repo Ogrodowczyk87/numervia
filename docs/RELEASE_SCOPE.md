@@ -23,7 +23,7 @@ Pozostałe planowane kalkulatory i Finance Operations nie wchodzą do pierwszego
 
 `NewsCache` i `VideoCache` to globalne obiekty w pamięci Pythona. Każdy nowy proces otrzymuje własny stan. Dla standardowej Lambda ponowne użycie środowiska jest optymalizacją; nie zapewnia trwałego stanu aplikacji. Restart lub kolejna instancja oznacza pusty cache i nowe lokalne liczniki. Wniosek z kodu: obecne limity nie są wspólne dla całej aplikacji. [Cykl życia środowiska Lambda](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html)
 
-Liczby 80 i 200 w `news.py` są limitami zapisanymi w aplikacji; nie potwierdzają limitów ani praw do publikacji z kont dostawców. Przed publikacją trzeba sprawdzić rzeczywiste plany i warunki używania nagłówków, zdjęć i przechowywania danych.
+Liczby 80 i 200 w `news/routes.py` są limitami zapisanymi w aplikacji; nie potwierdzają limitów ani praw do publikacji z kont dostawców. Przed publikacją trzeba sprawdzić rzeczywiste plany i warunki używania nagłówków, zdjęć i przechowywania danych.
 
 W repozytorium istnieje [NEWS_CACHE_DESIGN.md](NEWS_CACHE_DESIGN.md): projekt prywatnego S3, osobnego zadania odświeżającego i harmonogramu. To propozycja, nie działająca infrastruktura. Dla filmów potrzebny jest osobny zakres przygotowania. Aktualny limit YouTube trzeba sprawdzić na koncie projektu przed uruchomieniem; nie zakładamy go z historycznych opisów jednostek API. [Dokumentacja limitów YouTube](https://developers.google.com/youtube/v3/guides/quota_and_compliance_audits)
 
@@ -64,6 +64,6 @@ Tworzenie zasobów nadal wymaga późniejszego zatwierdzenia konfiguracji i kosz
 
 ## Wykonane sprawdzenia
 
-Przegląd news.py, news_providers.py, videos.py, klientów API frontendu i NEWS_CACHE_DESIGN.md. Uruchomiono osiem istniejących plików testów obejmujących cache, lokalne budżety, częściową awarię newsów, brak kluczy, starsze filmy przy błędzie oraz błędy dostawcy filmów: 24 testy przeszły. Pozostaje znane ostrzeżenie Starlette/TestClient dotyczące httpx.
+Przegląd news/routes.py, news/providers.py, videos/routes.py, klientów API frontendu i NEWS_CACHE_DESIGN.md. Uruchomiono osiem istniejących plików testów obejmujących cache, lokalne budżety, częściową awarię newsów, brak kluczy, starsze filmy przy błędzie oraz błędy dostawcy filmów: 24 testy przeszły. Pozostaje znane ostrzeżenie Starlette/TestClient dotyczące httpx.
 
 Testy zastępują odpowiedzi dostawców; nie weryfikują limitów kont ani gotowości wielu instancji Lambda. Powtórzenie: w katalogu backend uruchomić `.venv/bin/python -m pytest -q tests/test_news_cache.py tests/test_news_provider_budget.py tests/test_news_partial_failure.py tests/test_news_missing_token.py tests/test_videos_cache.py tests/test_videos_fallback.py tests/test_videos_missing_key.py tests/test_videos_provider_errors.py`.

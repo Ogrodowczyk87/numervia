@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.video_state import VideoBudget
+from app.videos.state import VideoBudget
 
 
 @pytest.mark.parametrize(

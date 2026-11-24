@@ -1,7 +1,7 @@
 import pytest
 
-from app.news_state import NewsState
-from app.news_store import MAX_STATE_BYTES, FileNewsStore, StateUnavailable
+from app.news.state import NewsState
+from app.news.store import MAX_STATE_BYTES, FileNewsStore, StateUnavailable
 
 
 @pytest.mark.parametrize(
@@ -39,7 +39,7 @@ def test_store_rejects_reset_corruption_and_preserves_old_file(
         def fail(*args):
             raise OSError("replace failed")
 
-        monkeypatch.setattr("app.news_store.os.replace", fail)
+        monkeypatch.setattr("app.news.store.os.replace", fail)
         with pytest.raises(StateUnavailable):
             store.update(lambda state: None)
         assert store.path.read_bytes() == original

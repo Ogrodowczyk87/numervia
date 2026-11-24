@@ -10,7 +10,7 @@ from app.main import app
 @pytest.fixture
 def news_provider(monkeypatch):
     mock = AsyncMock()
-    monkeypatch.setattr("app.news_refresh.httpx.AsyncClient.get", mock)
+    monkeypatch.setattr("app.news.refresh.httpx.AsyncClient.get", mock)
     return mock
 
 
@@ -18,8 +18,8 @@ def news_provider(monkeypatch):
 def saved_news(tmp_path):
     from datetime import UTC, datetime, timedelta
 
-    from app.news_state import NewsSnapshot, NewsState, StoredFeed
-    from app.news_store import FileNewsStore
+    from app.news.state import NewsSnapshot, NewsState, StoredFeed
+    from app.news.store import FileNewsStore
 
     now = datetime(2026, 11, 14, 12, tzinfo=UTC)
     store = FileNewsStore(tmp_path / "news.json")
@@ -44,7 +44,7 @@ def saved_news(tmp_path):
 
 @pytest.fixture
 def news_client(saved_news, news_provider):
-    from app.news import current_time, get_store
+    from app.news.routes import current_time, get_store
 
     store, now, _ = saved_news
     app.dependency_overrides[get_store] = lambda: store
@@ -82,7 +82,7 @@ def provider_response():
 @pytest.fixture
 def video_provider(monkeypatch):
     mock = AsyncMock()
-    monkeypatch.setattr("app.video_refresh.httpx.AsyncClient.get", mock)
+    monkeypatch.setattr("app.videos.refresh.httpx.AsyncClient.get", mock)
     return mock
 
 
@@ -90,8 +90,8 @@ def video_provider(monkeypatch):
 def saved_videos(tmp_path):
     from datetime import UTC, datetime, timedelta
 
-    from app.video_state import SavedCategory, VideoSnapshot, VideoState
-    from app.video_store import FileVideoStore
+    from app.videos.state import SavedCategory, VideoSnapshot, VideoState
+    from app.videos.store import FileVideoStore
 
     now = datetime(2026, 11, 14, 12, tzinfo=UTC)
     store = FileVideoStore(tmp_path / "videos.json")
@@ -116,7 +116,7 @@ def saved_videos(tmp_path):
 
 @pytest.fixture
 def video_client(saved_videos, video_provider):
-    from app.videos import current_time, get_store
+    from app.videos.routes import current_time, get_store
 
     store, now, _ = saved_videos
     app.dependency_overrides[get_store] = lambda: store

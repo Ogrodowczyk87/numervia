@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.news_refresh import refresh_feed
-from app.news_state import NewsState
-from app.news_store import FileNewsStore, StateUnavailable
+from app.news.refresh import refresh_feed
+from app.news.state import NewsState
+from app.news.store import FileNewsStore, StateUnavailable
 
 
 @pytest.mark.parametrize(

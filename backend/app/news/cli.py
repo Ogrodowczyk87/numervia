@@ -7,12 +7,12 @@ import os
 from datetime import UTC, datetime
 from pathlib import Path
 
-from app.news_demo import demo_articles, populate_demo
-from app.news_refresh import FEEDS, fetch_live, read_feed, refresh_feed, slot_at
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.demo import demo_articles, populate_demo
+from app.news.refresh import FEEDS, fetch_live, read_feed, refresh_feed, slot_at
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
-DEFAULT_PATH = Path(__file__).resolve().parents[1] / ".local" / "news-demo.json"
+DEFAULT_PATH = Path(__file__).resolve().parents[2] / ".local" / "news-demo.json"
 
 
 async def run(args: argparse.Namespace) -> None:

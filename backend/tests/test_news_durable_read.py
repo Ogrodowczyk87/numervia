@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.news_refresh import read_feed, refresh_feed
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.refresh import read_feed, refresh_feed
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
 
 @pytest.mark.parametrize("hours,expected", [(0, False), (7, True), (24, None)])

@@ -1,4 +1,4 @@
-from app.news import get_store
+from app.news.routes import get_store
 
 
 def test_news_state_path_comes_from_environment(monkeypatch, tmp_path):

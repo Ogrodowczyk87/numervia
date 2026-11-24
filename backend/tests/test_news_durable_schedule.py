@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.news_refresh import refresh_feed
-from app.news_state import NewsState
-from app.news_store import FileNewsStore
+from app.news.refresh import refresh_feed
+from app.news.state import NewsState
+from app.news.store import FileNewsStore
 
 
 @pytest.mark.parametrize("offset,mode", [(-1, "demo"), (301, "demo"), (0, "live")])

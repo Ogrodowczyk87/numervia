@@ -1,6 +1,6 @@
 import pytest
 
-from app.news_providers import NewsArticle
+from app.news.providers import NewsArticle
 
 
 @pytest.mark.parametrize("failed", ["marketaux", "currents"])

@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.news_refresh import refresh_feed
-from app.news_state import Attempt
+from app.news.refresh import refresh_feed
+from app.news.state import Attempt
 
 
 @pytest.mark.parametrize("provider,limit", [("marketaux", 80), ("currents", 200)])

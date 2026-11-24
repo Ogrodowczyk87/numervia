@@ -8,11 +8,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
-from app.video_refresh import read_videos, slot_at
-from app.video_state import VideoFeed
-from app.video_store import FileVideoStore, VideoStateUnavailable
+from app.videos.refresh import read_videos, slot_at
+from app.videos.state import VideoFeed
+from app.videos.store import FileVideoStore, VideoStateUnavailable
 
-DEFAULT_PATH = Path(__file__).resolve().parents[1] / ".local" / "videos-demo.json"
+DEFAULT_PATH = Path(__file__).resolve().parents[2] / ".local" / "videos-demo.json"
 router = APIRouter(prefix="/api/v1", tags=["Videos"])
 
 

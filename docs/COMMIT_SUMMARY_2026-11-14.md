@@ -23,7 +23,7 @@ Newsy i filmy korzystają z trwałego lokalnego magazynu. Wejścia na stronę od
 
 ## Najważniejsze pliki
 
-- Backend: `backend/app/news_state.py`, `news_store.py`, `news_refresh.py`, `news_cli.py` oraz odpowiedniki `video_*.py`; endpointy `news.py`, `videos.py`, konfiguracja `main.py` i adapter `handler.py`.
+- Backend: `backend/app/news/state.py`, `news/store.py`, `news/refresh.py`, `news/cli.py` oraz odpowiedniki w `videos/`; endpointy `news/routes.py`, `videos/routes.py`, konfiguracja `main.py` i adapter `handler.py`.
 - Frontend: `frontend/src/config/api.ts`, komponenty i klienty w `features/news`, `features/videos`, poprawki w nawigacji, kalkulatorze i stylach.
 - Dokumentacja: `AWS_ROADMAP.md`, `AWS_APP_PREPARATION.md`, `NEWS_LOCAL_CACHE.md`, `VIDEO_LOCAL_CACHE.md`, `UI_QA.md` i `RELEASE_SCOPE.md`.
 

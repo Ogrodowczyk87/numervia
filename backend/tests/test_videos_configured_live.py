@@ -1,8 +1,8 @@
 import asyncio
 from unittest.mock import AsyncMock
 
-from app.video_refresh import refresh_category
-from app.video_state import VideoBudget
+from app.videos.refresh import refresh_category
+from app.videos.state import VideoBudget
 
 
 def test_configured_live_budget_is_persisted_and_each_search_is_counted(saved_videos):

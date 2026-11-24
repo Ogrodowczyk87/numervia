@@ -12,7 +12,7 @@ Każda zakładka i każdy użytkownik mają czytać wspólnie zapisane wiadomoś
 Ruch na stronie nie może uruchamiać pobierania od dostawcy. Wyłączenie newsów
 lub awaria dostawcy nie mogą blokować kalkulatora ani pozostałej strony.
 
-Obecny `backend/app/news.py` obsługuje Marketaux i Currents. Każdy ma sześciogodzinny
+Obecny `backend/app/news/routes.py` obsługuje Marketaux i Currents. Każdy ma sześciogodzinny
 cache, osobną blokadę procesu, rejestr prób w kroczącym oknie 24 godzin i przerwę
 po błędzie. Wyniki są łączone bez powtórzeń tych samych URL (pomijając fragment),
 a awaria jednego źródła nie blokuje drugiego. Limity lokalne: Marketaux 80 prób,

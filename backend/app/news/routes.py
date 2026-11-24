@@ -9,13 +9,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import AwareDatetime, BaseModel
 
-from app.news_preview import LIVE_PATH, PREVIEW_MARKER
-from app.news_providers import Feed, NewsArticle
-from app.news_refresh import read_feed, slot_at
-from app.news_store import FileNewsStore, StateUnavailable
+from app.news.preview import LIVE_PATH, PREVIEW_MARKER
+from app.news.providers import Feed, NewsArticle
+from app.news.refresh import read_feed, slot_at
+from app.news.store import FileNewsStore, StateUnavailable
 
 router = APIRouter(prefix="/api/v1", tags=["News"])
-DEFAULT_PATH = Path(__file__).resolve().parents[1] / ".local" / "news-demo.json"
+DEFAULT_PATH = Path(__file__).resolve().parents[2] / ".local" / "news-demo.json"
 
 
 class NewsResponse(BaseModel):

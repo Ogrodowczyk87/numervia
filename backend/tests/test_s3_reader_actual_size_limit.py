@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from app.s3_reader import S3StateUnavailable, read_s3_object
+from app.content.s3_reader import S3StateUnavailable, read_s3_object
 
 
 def test_rejects_oversized_body_despite_smaller_declared_size():

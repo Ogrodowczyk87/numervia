@@ -127,13 +127,13 @@
 
 - [x] Zastosować NewsReader/VideoReader w funkcjach odczytu read_feed/read_videos. Ruff poprawny; użytkownik potwierdził 277 testów backendu bez błędów (jedno ostrzeżenie Starlette/httpx).
 
-- [ ] Przygotować konfigurację wyboru magazynu: lokalne pliki albo S3; odrzucać niepoprawną lub niepełną konfigurację.
+- [x] Przygotować konfigurację wyboru magazynu w content/config.py: local albo s3 oraz wymagane ustawienia bucketa i kluczy. Sprawdzono 6 przypadków wyboru trybu i 8 przypadków ustawień S3. Pełna weryfikacja backendu przed pushem: 291 testów i Ruff poprawne; pozostaje znane ostrzeżenie Starlette/httpx.
 
 - [ ] Przygotować klienta S3 tworzonego dopiero przy wyborze S3, z ograniczonym czasem oczekiwania; bez stałych kluczy AWS w kodzie.
 
 - [ ] Podłączyć wybór magazynu do endpointów newsów i filmów, zachowując lokalny podgląd; błędy S3 mają zwracać kontrolowane 503 bez zastępowania danych demo.
 
-- [ ] Sprawdzić wybór magazynu i błędy konfiguracji testami bez połączeń AWS.
+- [ ] Sprawdzić integrację wyboru magazynu z endpointami i odpowiedzi 503 przy błędach konfiguracji testami bez połączeń AWS. Testy samych funkcji konfiguracji są już gotowe.
 
 - [ ] Przekazać bucket, klucze i wybór magazynu S3 do API z CDK. Obecne API nadal czyta lokalne pliki.
 
@@ -149,8 +149,6 @@
 
 - [x] Przygotować politykę cache CloudFront w osobnym infra/lib/frontend-cache.ts i podłączyć ją do dystrybucji: MinTTL=0, DefaultTTL=0, MaxTTL=31536000; Gzip i Brotli włączone. Kompilacja, synth i sprawdzenie powiązania w szablonie przeszły 21 listopada 2026.
 
-- [ ] Przy publikacji ustawić metadane Cache-Control obiektów S3: index.html = no-cache, pliki assets z nazwami zawierającymi hash = public, max-age=31536000, immutable. Sprawdzić nagłówki odpowiedzi po wdrożeniu; polityka CloudFront sama ich nie ustawia.
-
 - [x] Wykonać kompilację TypeScript i lokalne cdk synth --no-lookups dla aktualnego zakresu frontendu. Wynik zawiera AWS::S3::Bucket, AWS::S3::BucketPolicy, AWS::CloudFront::OriginAccessControl oraz AWS::CloudFront::Distribution. Sprawdzono blokadę publicznego dostępu, Deny bez HTTPS i uprawnienie GetObject tylko dla wskazanej dystrybucji.
 
 - [ ] Po dodaniu pozostałych zasobów ponownie wykonać synth, przejrzeć cały szablon, uprawnienia i uaktualnić wycenę. Ocenić dwa zgłoszenia moderate dotyczące zależności CDK; nie używać audit fix --force bez przeglądu zmian.
@@ -164,6 +162,8 @@
 - [ ] Uzyskać wyraźne polecenie wykonania wdrożenia.
 
 ### 8. Pierwsze wdrożenie
+
+- [ ] Przy publikacji ustawić metadane Cache-Control obiektów S3: index.html = no-cache, pliki assets z nazwami zawierającymi hash = public, max-age=31536000, immutable. Sprawdzić nagłówki odpowiedzi po wdrożeniu; polityka CloudFront sama ich nie ustawia.
 
 - [ ] Wykonać zatwierdzony bootstrap i deploy.
 
